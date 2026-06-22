@@ -9,11 +9,11 @@ export default function Projects() {
       link: "https://jose-c-web.github.io/GeTech/site/Site%20C/pages/index.html"
     },
     {
-      title: "",
-      description: "Painel de controle administrativo com gráficos em tempo real e gerenciamento de estoque.",
+      title: "Flix Box",
+      description: "FlixBox é uma plataforma de séries simulado (não funcional)",
       tech: "React · JavaScript · Chart.js",
       image: "https://via.placeholder.com/400x240", // Adicionado link temporário para não quebrar o segundo card
-      link: "#"
+      link: "https://jose-c-web.github.io/FlixBox/"
     }
   ];
 
