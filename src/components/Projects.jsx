@@ -2,7 +2,6 @@ import { useState } from "react";
 
 export default function Projects() {
   const [expandido, setExpandido] = useState(false);
-  // Estado para controlar a animação de fechamento
   const [estaFechando, setEstaFechando] = useState(false);
 
   const meusProjetos = [
@@ -29,24 +28,17 @@ export default function Projects() {
     }
   ];
 
-  // Se estiver expandido OU no meio do processo de fechar, renderiza todos os cards
   const projetosVisiveis = expandido || estaFechando ? meusProjetos : meusProjetos.slice(0, 2);
 
   const lidarComClique = () => {
     if (expandido) {
-      // Se já está aberto e o usuário quer fechar:
-      setEstaFechando(true); // Ativa a animação de saída no CSS
-      
-      // Espera a animação de CSS acabar (350ms) antes de sumir com o card do HTML
+      setEstaFechando(true); 
       setTimeout(() => {
         setExpandido(false);
         setEstaFechando(false);
-        // Rola a tela de volta para o topo dos projetos de forma sutil
         document.querySelector("#projects").scrollIntoView({ behavior: 'smooth' });
       }, 350); 
-
     } else {
-      // Se está fechado, apenas abre direto (a animação de entrada já roda)
       setExpandido(true);
     }
   };
@@ -57,10 +49,7 @@ export default function Projects() {
       
       <div className="projects-grid">
         {projetosVisiveis.map((projeto, index) => {
-          // Define se este card específico é um dos "extras" (da terceira posição em diante)
           const ehExtra = index >= 2;
-          
-          // Se for um card extra e o estado de fechamento estiver ativo, adiciona a classe "closing"
           const classeAnimacao = ehExtra && estaFechando ? "closing" : "";
 
           return (
@@ -75,13 +64,16 @@ export default function Projects() {
                 <div>
                   <h3>{projeto.title}</h3>
                   <p>{projeto.description}</p>
-                  <p style={{ color: '#38bdf8', marginBottom: '2rem' }}>
+                  <p style={{ color: 'var(--primary)', marginBottom: '2rem' }}>
                     <small>{projeto.tech}</small>
                   </p>
                 </div>
                 
                 <div className="project-links">
-                  <a href={projeto.link} target="_blank" rel="noreferrer">Ver Repositório &rarr;</a>
+                  {/* Forçado o link a utilizar a variável de cor global customizável */}
+                  <a href={projeto.link} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>
+                    Ver Repositório &rarr;
+                  </a>
                 </div>
               </div>
             </div>

@@ -4,7 +4,9 @@ export default function Footer() {
   return (
     <footer>
       <div className="footer-content">
-        <h2>&lt;/Jose.<span>Web</span>&gt;</h2>
+        <h2 className="typing-wrapper typing-footer">
+          &lt;/Jose.<span>Web</span>&gt;
+        </h2>
         <p className="footer-tagline">Desenvolvendo ideias em código.</p>
       </div>
 
