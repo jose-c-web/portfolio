@@ -3,6 +3,7 @@ import Header from './components/Header';
 import About from './components/About';
 import Projects from './components/Projects';
 import Contact from './components/Contact'; // ou seu componente de formulário
+import Footer from './components/Footer';
 import './App.css';
 
 export default function App() {
@@ -27,6 +28,8 @@ export default function App() {
       <About />
       <Projects />
       <Contact />
+      <Footer />
+      
     </>
   );
 } 
