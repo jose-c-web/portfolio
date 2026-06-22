@@ -1,20 +1,32 @@
-import './App.css';
+import { useEffect } from 'react';
 import Header from './components/Header';
 import About from './components/About';
 import Projects from './components/Projects';
-import Contact from './components/Contact';
+import Contact from './components/Contact'; // ou seu componente de formulário
+import './App.css';
 
-function App() {
+export default function App() {
+  useEffect(() => {
+    const handleMouseMove = (event) => {
+      // Atualiza as variáveis CSS globais com a posição exata do cursor na tela
+      document.documentElement.style.setProperty('--mouse-x', `${event.clientX}px`);
+      document.documentElement.style.setProperty('--mouse-y', `${event.clientY}px`);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    // Limpa o evento ao desmontar o componente para otimizar performance
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
   return (
     <>
       <Header />
-      <main>
-        <About />
-        <Projects />
-        <Contact />
-      </main>
+      <About />
+      <Projects />
+      <Contact />
     </>
   );
-}
-
-export default App;
+} 

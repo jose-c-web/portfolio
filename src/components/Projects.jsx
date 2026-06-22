@@ -5,7 +5,7 @@ export default function Projects() {
       title: "GeTech Site",
       description: "Plataforma web desenvolvida para exibição de serviços tecnológicos e design responsivo.",
       tech: "React · CSS Modules",
-      link: "https://github.com/seu-usuario/GeTech"
+      link: "https://jose-c-web.github.io/GeTech/site/Site%20C/pages/index.html"
     },
     {
       title: "E-Commerce Dashboard",
