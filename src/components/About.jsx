@@ -8,7 +8,7 @@ export default function About() {
           <p><strong>Habilidades:</strong> HTML5, CSS3, JavaScript (ES6+), React.js, Git e GitHub.</p>
         </div>
         {/* Adicione uma foto sua na pasta assets ou use uma imagem temporária abaixo */}
-        <img src="https://via.placeholder.com/250" alt="Foto de Perfil" className="profile-pic" />
+        <img src="../assets/IMG/foto-perfil.webp" alt="Foto de Perfil" className="profile-pic" />
       </div>
     </section>
   );

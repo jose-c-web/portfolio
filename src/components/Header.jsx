@@ -1,7 +1,7 @@
 export default function Header() {
   return (
     <header>
-      <h1>&lt;Jose.Dev /&gt;</h1>
+      <h1>&lt;Jose.Web /&gt;</h1>
       <nav>
         <a href="#about">Sobre</a>
         <a href="#projects">Projetos</a>
