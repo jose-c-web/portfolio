@@ -376,7 +376,7 @@ section {
   .section-title { padding: 0 2rem; }
   .projects-grid { padding: 0 2rem; }
   .about-text h3 { font-size: 3.5rem; }
-  .profile-pic { width: 340px; height: 340px; }
+  .profile-pic { width: 340px; height: 340px;  }
   .projects-grid { grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
 }
 
