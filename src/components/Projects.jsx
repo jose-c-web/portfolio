@@ -11,8 +11,8 @@ export default function Projects() {
     {
       title: "Flix Box",
       description: "FlixBox é uma plataforma de séries simulado (não funcional)",
-      tech: "React · JavaScript · Chart.js",
-      image: "https://via.placeholder.com/400x240", // Adicionado link temporário para não quebrar o segundo card
+      tech: "HTML · CSS · JavaScript",
+      image: "./src/assets/IMG/FlixBox.png", // Adicionado link temporário para não quebrar o segundo card
       link: "https://jose-c-web.github.io/FlixBox/"
     }
   ];
