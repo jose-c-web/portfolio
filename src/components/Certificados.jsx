@@ -11,19 +11,19 @@ export default function Certificates() {
       title: "Excel Básico",
       issuer: "Executa a edição e formatação de dados em uma planilha e utiliza as funções e fórmulas básicas do Excel.",
       hours: "20 horas",
-      image: "../assets/Certificados/Excel_Basico.png"
+      image: "./src/assets/Certificados/Excel_Basico.png"
     },
     {
       title: "Competência Transversal - SEGURANÇA NO TRABALHO",
       issuer: "Conceitos e Principais acidentes de Trabalho no ambiente corporativo e industrial contemporâneo.",
       hours: "14 horas",
-      image: "../assets/Certificados/Competencia_Trsnversal.png"
+      image: "./src/assets/Certificados/Competencia_Trsnversal.png"
     },
     {
       title: "Fluência - Fundamentos da inteligência artificial",
       issuer: "Compreende os fundamentos da inteligência artificial para melhoria da produtividade e para o auxílio na tomada de decisões, identificando os impactos nos mecanismos de pesquisa online, reconhecendo o Bing Chat e Copilot do Microsoft 365 como ferramentas de facilitação das tarefas diárias e processos de trabalho e considerando questões éticas.",
       hours: "08 horas",
-      image: "../assets/Certificados/Flu.png"
+      image: "./src/assets/Certificados/Flu.png"
     }
   ];
 

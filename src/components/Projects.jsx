@@ -9,21 +9,21 @@ export default function Projects() {
       title: "GeTech Site",
       description: "Plataforma web desenvolvida para exibição de serviços tecnológicos e design responsivo.",
       tech: "HTML · CSS · JavaScript",
-      image: "../assets/IMG/GeTech.png",
+      image: "./src/assets/IMG/GeTech.png",
       link: "https://jose-c-web.github.io/GeTech/"
     },
     {
       title: "Flix Box",
       description: "FlixBox é uma plataforma de séries simulado (não funcional)",
       tech: "HTML · CSS · JavaScript",
-      image: "../assets/IMG/FlixBox.png", 
+      image: "./src/assets/IMG/FlixBox.png", 
       link: "https://jose-c-web.github.io/FlixBox/"
     },
     {
       title: "Ana Doces",
       description: "Ana Doces é um site de culinária que foi um dos primeiros projetos feito",
       tech: "HTML · CSS",
-      image: "../assets/IMG/Ana_Doces.png", 
+      image: "./src/assets/IMG/Ana_Doces.png", 
       link: "https://jose-c-web.github.io/Ana_Doces/"
     }
   ];
