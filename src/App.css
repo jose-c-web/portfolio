@@ -7,6 +7,9 @@
   --white: #ffffff;
   --text-gray: #a9a9a9;         /* Texto Secundário */
   
+  /* IDEIA 2: VARIÁVEL DE FONTE GLOBAL DINÂMICA */
+  --font-family: 'Poppins', sans-serif;
+
   /* Borda herdando a cor primária dinamicamente usando a opacidade do próprio CSS */
   --border-neon: color-mix(in srgb, var(--primary) 15%, transparent);
   
@@ -19,7 +22,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-family), sans-serif; 
   scroll-behavior: smooth;
 }
 
@@ -40,14 +43,13 @@ body::before {
   left: 0;
   width: 100vw;
   height: 100vh;
-  /* Controlado dinamicamente: 1 para ativo e 0 para oculto */
   opacity: var(--lanterna-opacity, 1); 
   background: radial-gradient(
     700px circle at var(--mouse-x) var(--mouse-y), 
     color-mix(in srgb, var(--primary) 20%, transparent), 
     transparent 80%
   );
-  z-index: 1;
+  z-index: 2; 
   pointer-events: none; 
   mix-blend-mode: screen; 
   transition: opacity 0.3s ease, background 0.05s cubic-bezier(0.16, 1, 0.3, 1);
@@ -67,6 +69,7 @@ header {
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-neon);
   z-index: 1000;
+  transition: padding 0.3s ease;
 }
 
 header h1 {
@@ -96,7 +99,6 @@ header nav a {
   white-space: nowrap;
 }
 
-/* Animação fluida de linha passando embaixo dos links ao passar o mouse */
 header nav a::after {
   content: '';
   position: absolute;
@@ -116,7 +118,6 @@ header nav a:hover::after {
   width: 100%;
 }
 
-/* Estilização do link de repositório corrigida para var(--primary) */
 .project-links > a {
   text-decoration: none;
   background-color: rgb(0, 0, 0);
@@ -153,7 +154,7 @@ header nav a:hover::after {
   transform-origin: bottom left;
 }
 
-/* Seções Ocupando 100% de Largura e Altura */
+/* Seções */
 section {
   width: 100%;
   min-height: 100vh;            
@@ -162,7 +163,8 @@ section {
   justify-content: center;      
   padding: 8rem 0 4rem 0;       
   position: relative;
-  z-index: 2;
+  z-index: 3;
+  transition: padding 0.3s ease, min-height 0.3s ease;
 }
 
 .section-title {
@@ -172,6 +174,7 @@ section {
   position: relative;
   letter-spacing: -1px;
   padding: 0 4rem;              
+  transition: font-size 0.3s ease, margin-bottom 0.3s ease, padding 0.3s ease;
 }
 
 .section-title::after {
@@ -183,6 +186,7 @@ section {
   height: 4px;
   background: var(--primary);
   box-shadow: 0 0 15px var(--primary);
+  transition: left 0.3s ease;
 }
 
 /* Layout Sobre / Hero */
@@ -194,6 +198,7 @@ section {
   justify-content: space-between;
   gap: 4rem;
   padding: 0 4rem;              
+  transition: min-height 0.3s ease, gap 0.3s ease, padding 0.3s ease;
 }
 
 .about-text {
@@ -201,7 +206,6 @@ section {
   max-width: 60%;
 }
 
-/* Sombras do greeting adaptadas para acompanhar o tema sutilmente */
 .greeting {
   color: var(--primary);
   font-family: 'Fira Code', monospace;
@@ -216,6 +220,7 @@ section {
   line-height: 1.1;
   margin-bottom: 2rem;
   letter-spacing: -2px;
+  transition: font-size 0.3s ease, margin-bottom 0.3s ease;
 }
 
 .about-text p {
@@ -223,6 +228,7 @@ section {
   font-size: 1.2rem;
   margin-bottom: 2.5rem;
   max-width: 90%;
+  transition: font-size 0.3s ease, margin-bottom 0.3s ease;
 }
 
 /* Layout da Imagem de Perfil */
@@ -246,10 +252,11 @@ section {
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
     border-color 0.5s ease, 
     box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.5s ease;
+    filter 0.5s ease,
+    width 0.3s ease,
+    height 0.3s ease;
 }
 
-/* Glow hover da imagem puxa a cor primária ativa */
 .profile-pic:hover {
   transform: translateY(-8px) rotateX(5deg) rotateY(-5deg) scale(1.02);
   border: 3px solid var(--primary);
@@ -291,7 +298,6 @@ section {
   transition: color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-/* Background e sombras reativas para a seção de links */
 .contact-links > a:hover {
   color: var(--white);
   background-color: color-mix(in srgb, var(--primary) 15%, transparent);
@@ -306,6 +312,7 @@ section {
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
   gap: 3rem;
   padding: 0 4rem;              
+  transition: gap 0.3s ease, padding 0.3s ease, grid-template-columns 0.3s ease;
 }
 
 .ver-mais-container {
@@ -328,7 +335,6 @@ section {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Botão "Ver mais" reativo */
 .btn-ver-mais:hover {
   background: color-mix(in srgb, var(--primary) 10%, transparent);
   color: var(--white);
@@ -347,7 +353,7 @@ section {
   to { opacity: 0; transform: translateY(20px) scale(0.95); }
 }
 
-/* MODIFICADO: CONTROLE DO BLUR VARIÁVEL DO VIDRO */
+/* Card de Projetos */
 .project-card {
   background: var(--card-bg);
   backdrop-filter: blur(var(--card-blur, 8px));
@@ -359,14 +365,13 @@ section {
   flex-direction: column;
   min-height: 450px;
   animation: fadeScaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
+  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, min-height 0.3s ease;
 }
 
 .project-card.closing {
   animation: fadeScaleOut 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-/* Hover do Card de projetos usando a nova cor */
 .project-card:hover {
   transform: translateY(-8px) scale(1.01);
   border-color: color-mix(in srgb, var(--primary) 50%, transparent);
@@ -379,6 +384,7 @@ section {
   overflow: hidden;
   background: #000;
   border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  transition: height 0.3s ease;
 }
 
 .card-img img {
@@ -398,6 +404,7 @@ section {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: padding 0.3s ease;
 }
 
 .card-body h3 {
@@ -405,7 +412,7 @@ section {
   margin-bottom: 15px;
   font-size: 1.6rem;
   font-weight: 700;
-  transition: color 0.3s;
+  transition: color 0.3s, font-size 0.3s ease, margin-bottom 0.3s ease;
 }
 
 .project-card:hover .card-body h3 {
@@ -416,6 +423,7 @@ section {
   color: var(--text-gray);
   font-size: 1.05rem;
   margin-bottom: 25px;
+  transition: font-size 0.3s ease, margin-bottom 0.3s ease;
 }
 
 .tags {
@@ -423,6 +431,7 @@ section {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  transition: margin-bottom 0.3s ease;
 }
 
 .tags span {
@@ -433,7 +442,7 @@ section {
   font-size: 0.8rem;
   font-weight: 600;
   border: 1px solid var(--border-neon);
-  transition: background 0.3s, transform 0.3s;
+  transition: background 0.3s, transform 0.3s, padding 0.3s ease;
 }
 
 .project-card:hover .tags span {
@@ -441,7 +450,7 @@ section {
   transform: translateY(-2px);
 }
 
-/* Formulário de Contato e Inputs */
+/* Formulário de Contato */
 .btn-enviar {
   width: 100%;
   padding: 16px;
@@ -467,7 +476,6 @@ section {
   transform: scale(1.02);
 }
 
-/* MODIFICADO: CONTROLE DO BLUR VARIÁVEL DO VIDRO */
 .formulario-contato {
   background: var(--card-bg);
   backdrop-filter: blur(var(--card-blur, 8px));
@@ -477,7 +485,7 @@ section {
   border: 1px solid rgba(255, 255, 255, 0.03);
   max-width: 800px; 
   width: 100%;
-  transition: backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
+  transition: backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, padding 0.3s ease;
 }
 
 .campo-form {
@@ -490,7 +498,7 @@ section {
   color: var(--white);
   outline: none;
   font-size: 1.05rem;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s, padding 0.3s ease, margin-bottom 0.3s ease;
 }
 
 .campo-form:focus {
@@ -498,16 +506,16 @@ section {
   box-shadow: 0 0 15px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
-/* ================= SEÇÃO DE CERTIFICADOS COMPACTA ================= */
+/* Certificados */
 .certificate-mini-grid {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
   gap: 1.5rem;
   padding: 0 4rem;
+  transition: gap 0.3s ease, padding 0.3s ease;
 }
 
-/* MODIFICADO: CONTROLE DO BLUR VARIÁVEL DO VIDRO */
 .certificate-mini-card {
   display: flex;
   align-items: center;
@@ -521,14 +529,13 @@ section {
   position: relative;
   overflow: hidden;
   animation: fadeScaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s, background-color 0.3s, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s, background-color 0.3s, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease, padding 0.3s ease;
 }
 
 .certificate-mini-card.closing {
   animation: fadeScaleOut 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-/* Hover dos certificados acompanhando a cor secundária reativa */
 .certificate-mini-card:hover {
   transform: translateY(-3px);
   border-color: color-mix(in srgb, var(--primary) 40%, transparent);
@@ -557,7 +564,6 @@ section {
 }
 
 .mini-info {
-  box-grow: 1;
   flex-grow: 1;
 }
 
@@ -623,7 +629,7 @@ section {
   line-height: 1.4;
 }
 
-/* ================= FOOTER ================= */
+/* Footer */
 footer {
   width: 100%;
   background: rgba(5, 5, 5, 0.95);
@@ -675,7 +681,7 @@ footer h2 span {
   text-align: center;
 }
 
-/* ================= ANIMAÇÃO DE DIGITAÇÃO OPTIMIZADA ================= */
+/* Animação Digitação */
 .typing-wrapper {
   display: inline-block;
   white-space: nowrap;
@@ -716,7 +722,7 @@ header h1, .footer-content h2 {
   flex-shrink: 0; 
 }
 
-/* ================= PAINEL FLUTUANTE DE CUSTOMIZAÇÃO DE CORES ================= */
+/* Painel de Customização */
 .GerenciadorCores {
   position: fixed;
   bottom: 30px;
@@ -804,7 +810,7 @@ header h1, .footer-content h2 {
   border-color: var(--white);
 }
 
-/* MODIFICADO: TRAVA GLOBAL DE MOVIMENTOS CASO "ANIMAÇÕES" SEJA DESATIVADA NO APP.JSX */
+/* Trava de Movimentos Sem Animação */
 body.disable-animations .profile-pic,
 body.disable-animations .project-card,
 body.disable-animations .certificate-mini-card {
@@ -813,7 +819,111 @@ body.disable-animations .certificate-mini-card {
   transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
 }
 
+/* ================= IDEIA 1: DESIGN DO MINI TERMINAL ================= */
+.mini-terminal-container {
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px;
+  font-family: 'Fira Code', monospace;
+}
+.terminal-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  outline: none;
+}
+.terminal-return {
+  color: #a9a9a9;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+/* ================= IDEIA 4: MINI ANIMAÇÃO DO EQUALIZADOR ================= */
+.audio-equalizer-bar {
+  display: inline-block;
+  width: 3px;
+  height: 12px;
+  background-color: var(--primary);
+  animation: equalize 0.6s ease-in-out infinite alternate;
+}
+@keyframes equalize {
+  0% { transform: scaleY(0.3); }
+  100% { transform: scaleY(1.3); }
+}
+
+/* ================= IDEIA 5: CURSOR NEON CUSTOMIZADO ================= */
+.custom-neon-cursor {
+  width: 12px;
+  height: 12px;
+  background-color: var(--primary);
+  border-radius: 50%;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+  transition: width 0.2s, height 0.2s, background-color 0.2s;
+}
+.custom-neon-cursor.cursor-expandido {
+  width: 25px;
+  height: 25px;
+  background-color: transparent;
+  border: 2px solid var(--primary);
+  box-shadow: 0 0 15px var(--primary);
+}
+/* Oculta cursor padrão quando o customizado estiver ativo */
+body:has(.custom-neon-cursor) {
+  cursor: none !important;
+}
+body:has(.custom-neon-cursor) a, 
+body:has(.custom-neon-cursor) button,
+body:has(.custom-neon-cursor) input {
+  cursor: none !important;
+}
+
+/* ================= IDEIA 3: ANIMAÇÃO CYBERPUNK GLITCH ================= */
+body.cyber-glitch-active .card-body h3:hover,
+body.cyber-glitch-active .about-text h3:hover,
+body.cyber-glitch-active .section-title:hover {
+  animation: glitchAnimation 0.3s linear infinite;
+  text-shadow: 2px -2px #ff0055, -2px 2px #00ffaa;
+  position: relative;
+}
+@keyframes glitchAnimation {
+  0% { transform: translate(0) }
+  20% { transform: translate(-2px, 2px) }
+  40% { transform: translate(-2px, -2px) }
+  60% { transform: translate(2px, 2px) }
+  80% { transform: translate(2px, -2px) }
+  100% { transform: translate(0) }
+}
+
+/* Botões do Player de Música */
+.btn-playlist {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  padding: 2px 8px;
+}
+
+.btn-playlist:hover {
+  color: var(--primary);
+  transform: scale(1.2);
+  text-shadow: 0 0 8px var(--primary);
+}
+
 /* ================= MÍDIA QUERIES - RESPONSIVIDADE UNIFICADA ================= */
+/* ================= RESPONSIVIDADE ATUALIZADA ================= */
+
 @media (max-width: 1200px) {
   header { padding: 1.5rem 2rem; }
   .about-content { padding: 0 2rem; }
@@ -827,7 +937,6 @@ body.disable-animations .certificate-mini-card {
 }
 
 @media (max-width: 968px) {
-  /* Mantido o display none original para telas menores */
   body::before { display: none; } 
   .about-content {
     flex-direction: column-reverse; 
@@ -844,6 +953,11 @@ body.disable-animations .certificate-mini-card {
   .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 3rem; }
   .section-title::after { left: 50%; transform: translateX(-50%); }
   .certificate-mini-grid { padding: 0 2rem; }
+
+  /* Ajuste do Painel Flutuante para Tablets */
+  .GerenciadorCores {
+    max-width: 280px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -859,6 +973,25 @@ body.disable-animations .certificate-mini-card {
   footer { padding: 3rem 1.5rem 1.5rem 1.5rem; }
   .footer-tagline { font-size: 0.85rem; }
   .certificate-mini-grid { grid-template-columns: 1fr; padding: 0 1.5rem; gap: 1rem; } 
+
+  /* CRÍTICO: Desativa cursor customizado em telas de toque e força o padrão a voltar */
+  .custom-neon-cursor {
+    display: none !important;
+  }
+  body, body * {
+    cursor: auto !important;
+  }
+
+  /* Garante o comportamento lateral estável do painel no Mobile/Tablet */
+  .GerenciadorCores {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 270px;
+    right: -270px;
+  }
+  .GerenciadorCores.aberto {
+    right: 0;
+  }
 }
 
 @media (max-width: 480px) {
@@ -879,15 +1012,45 @@ body.disable-animations .certificate-mini-card {
   .mini-info h3 { font-size: 0.95rem; }
   .mini-arrow { display: none; }
   
+  /* ⚙️ Ajustes Corrigidos do Painel de Cores em Telas Pequenas */
   .GerenciadorCores {
-    bottom: 20px;
-    right: 20px;
-    flex-direction: column-reverse;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 250px;
+    right: -250px; /* Mantém o comportamento de slide da direita correto */
+    padding: 15px 12px;
   }
+  .GerenciadorCores.aberto {
+    right: 0;
+  }
+  
   .conteudo-cores {
-    transform: translateY(30px) scale(0.9);
+    gap: 10px !important;
+    max-height: 75vh !important; /* Permite rolagem confortável da playlist e controles */
+    width: 100%;
   }
-  .GerenciadorCores.aberto .conteudo-cores {
-    transform: translateY(0) scale(1);
+
+  /* Reduz ligeiramente os itens internos para economizar espaço vertical */
+  .grid-paletas {
+    gap: 6px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .item-cor {
+    width: 28px;
+    height: 28px;
+  }
+  
+  /* Melhora o espaçamento do Mini Terminal no Mobile */
+  .mini-terminal-container {
+    padding: 6px;
+  }
+  .terminal-input {
+    font-size: 0.75rem;
+  }
+  
+  /* Botões da Playlist mais acessíveis ao toque */
+  .btn-playlist {
+    font-size: 1.1rem;
+    padding: 6px 12px;
   }
 }

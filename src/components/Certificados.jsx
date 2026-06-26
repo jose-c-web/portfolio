@@ -1,3 +1,8 @@
+// 1. Importações corrigidas com nomes únicos para cada imagem
+import imgExcel from '../assets/Certificados/Excel_Basico.png';
+import imgSeguranca from '../assets/Certificados/Competencia_Trsnversal.png';
+import imgFluencia from '../assets/Certificados/Flu.png';
+
 import { useState } from "react";
 
 export default function Certificates() {
@@ -6,24 +11,25 @@ export default function Certificates() {
   const [avisoIndex, setAvisoIndex] = useState(null);
   const [textosExpandidos, setTextosExpandidos] = useState({});
 
+  // 2. Mapeamento da array apontando para as variáveis de imagem importadas acima
   const meusCertificados = [
     {
       title: "Excel Básico",
       issuer: "Executa a edição e formatação de dados em uma planilha e utiliza as funções e fórmulas básicas do Excel.",
       hours: "20 horas",
-      image: "./src/assets/Certificados/Excel_Basico.png"
+      image: imgExcel // 👈 Substituído o texto pela variável importada
     },
     {
       title: "Competência Transversal - SEGURANÇA NO TRABALHO",
       issuer: "Conceitos e Principais acidentes de Trabalho no ambiente corporativo e industrial contemporâneo.",
       hours: "14 horas",
-      image: "./src/assets/Certificados/Competencia_Trsnversal.png"
+      image: imgSeguranca // 👈 Substituído o texto pela variável importada
     },
     {
       title: "Fluência - Fundamentos da inteligência artificial",
       issuer: "Compreende os fundamentos da inteligência artificial para melhoria da produtividade e para o auxílio na tomada de decisões, identificando os impactos nos mecanismos de pesquisa online, reconhecendo o Bing Chat e Copilot do Microsoft 365 como ferramentas de facilitação das tarefas diárias e processos de trabalho e considerando questões éticas.",
       hours: "08 horas",
-      image: "./src/assets/Certificados/Flu.png"
+      image: imgFluencia // 👈 Substituído o texto pela variável importada
     }
   ];
 
@@ -142,7 +148,7 @@ export default function Certificates() {
       {meusCertificados.length > 2 && (
         <div className="ver-mais-container">
           <button className="btn-ver-mais" onClick={lidarComCliqueVerMais}>
-            {expandido ? "Ver menos" : "Ver certificates"}
+            {expandido ? "Ver menos" : "Ver certificados"}
           </button>
         </div>
       )}

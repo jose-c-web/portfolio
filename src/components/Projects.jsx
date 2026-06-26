@@ -1,29 +1,35 @@
+// 1. Importações corrigidas com nomes exclusivos para as imagens dos projetos
+import imgGeTech from '../assets/IMG/GeTech.png';
+import imgFlixBox from '../assets/IMG/FlixBox.png';
+import imgAnaDoces from '../assets/IMG/Ana_Doces.png';
+
 import { useState } from "react";
 
 export default function Projects() {
   const [expandido, setExpandido] = useState(false);
   const [estaFechando, setEstaFechando] = useState(false);
 
+  // 2. Mapeamento da array apontando para as variáveis que importamos acima
   const meusProjetos = [
     {
       title: "GeTech Site",
       description: "Plataforma web desenvolvida para exibição de serviços tecnológicos e design responsivo.",
       tech: "HTML · CSS · JavaScript",
-      image: "./src/assets/IMG/GeTech.png",
+      image: imgGeTech, // 👈 Modificado
       link: "https://jose-c-web.github.io/GeTech/"
     },
     {
       title: "Flix Box",
       description: "FlixBox é uma plataforma de séries simulado (não funcional)",
       tech: "HTML · CSS · JavaScript",
-      image: "./src/assets/IMG/FlixBox.png", 
+      image: imgFlixBox, // 👈 Modificado
       link: "https://jose-c-web.github.io/FlixBox/"
     },
     {
       title: "Ana Doces",
       description: "Ana Doces é um site de culinária que foi um dos primeiros projetos feito",
       tech: "HTML · CSS",
-      image: "./src/assets/IMG/Ana_Doces.png", 
+      image: imgAnaDoces, // 👈 Modificado
       link: "https://jose-c-web.github.io/Ana_Doces/"
     }
   ];
@@ -70,7 +76,6 @@ export default function Projects() {
                 </div>
                 
                 <div className="project-links">
-                  {/* Forçado o link a utilizar a variável de cor global customizável */}
                   <a href={projeto.link} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>
                     Ver Repositório &rarr;
                   </a>

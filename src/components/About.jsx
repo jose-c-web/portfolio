@@ -1,3 +1,5 @@
+import fotoPerfil from '../assets/IMG/foto-perfil.webp';
+
 export default function About() {
   return (
     <section id="about">
@@ -11,7 +13,7 @@ export default function About() {
         </div>
         
         <div className="profile-wrapper">
-          <img src="./src/assets/IMG/foto-perfil.webp" alt="Foto de Perfil" className="profile-pic" />
+          <img src={fotoPerfil} alt="Perfil" className="profile-pic" />
         </div>
       </div>
     </section>
