@@ -670,30 +670,33 @@ footer h2 span {
 }
 
 /* ================= ANIMAÇÃO DE DIGITAÇÃO OPTIMIZADA ================= */
+/* ================= ANIMAÇÃO DE DIGITAÇÃO ROBUSTA (AJUSTADA) ================= */
 .typing-wrapper {
   display: inline-block;
   white-space: nowrap;
   overflow: hidden;
   border-right: 3px solid var(--primary); 
   font-family: 'Fira Code', monospace !important; 
-  width: 0; 
+  width: 0;
 }
 
 .typing-header {
+  max-width: 12ch; /* Limita estritamente o tamanho a 12 caracteres (largura exata do texto) */
   animation: 
-    typingEffect 3.5s steps(11) infinite,
+    typingEffect 4.5s steps(12) infinite, /* Aumentado para 4.5s para escrever mais lento */
     blinkCursor 0.75s step-end infinite;
 }
 
 .typing-footer {
+  max-width: 12ch; /* Limita estritamente o tamanho a 12 caracteres */
   animation: 
-    typingEffect 3.5s steps(12) infinite,
+    typingEffect 4.5s steps(12) infinite, /* Aumentado para 4.5s para escrever mais lento */
     blinkCursor 0.75s step-end infinite;
 }
 
 @keyframes typingEffect {
   0% { width: 0; }
-  40%, 60% { width: 100%; }
+  35%, 65% { width: 12ch; } /* Trava a abertura exatamente no tamanho limite estável */
   100% { width: 0; }
 }
 
@@ -705,6 +708,7 @@ footer h2 span {
 header h1, .footer-content h2 {
   letter-spacing: 0px !important;
   display: inline-flex !important;
+  flex-shrink: 0; /* Garante que o container do h1/h2 não encolha os elementos vizinhos */
 }
 
 /* ================= PAINEL FLUTUANTE DE CUSTOMIZAÇÃO DE CORES ================= */
