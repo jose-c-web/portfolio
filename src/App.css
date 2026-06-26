@@ -7,7 +7,7 @@
   --white: #ffffff;
   --text-gray: #a9a9a9;         /* Texto Secundário */
   
-  /* MODIFICADO: A borda agora herda a cor primária dinamicamente usando a opacidade do próprio CSS color-mix ou transparente */
+  /* Borda herdando a cor primária dinamicamente usando a opacidade do próprio CSS */
   --border-neon: color-mix(in srgb, var(--primary) 15%, transparent);
   
   /* Variáveis dinâmicas controladas pelo JavaScript do Mouse */
@@ -32,7 +32,7 @@ body {
   position: relative;
 }
 
-/* MODIFICADO: EFEITO LANTERNA DINÂMICO QUE PEGA A COR DO PAINEL */
+/* MODIFICADO: EFEITO LANTERNA REATIVO AO INTERRUPTOR DO APP.JSX */
 body::before {
   content: '';
   position: fixed;
@@ -40,7 +40,8 @@ body::before {
   left: 0;
   width: 100vw;
   height: 100vh;
-  /* Cria uma mistura suave com base na cor var(--primary) configurada no painel */
+  /* Controlado dinamicamente: 1 para ativo e 0 para oculto */
+  opacity: var(--lanterna-opacity, 1); 
   background: radial-gradient(
     700px circle at var(--mouse-x) var(--mouse-y), 
     color-mix(in srgb, var(--primary) 20%, transparent), 
@@ -48,8 +49,8 @@ body::before {
   );
   z-index: 1;
   pointer-events: none; 
-  transition: background 0.05s cubic-bezier(0.16, 1, 0.3, 1);
   mix-blend-mode: screen; 
+  transition: opacity 0.3s ease, background 0.05s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Header em Tela Cheia */
@@ -115,7 +116,7 @@ header nav a:hover::after {
   width: 100%;
 }
 
-/* MODIFICADO: Estilização do link de repositório corrigida para var(--primary) */
+/* Estilização do link de repositório corrigida para var(--primary) */
 .project-links > a {
   text-decoration: none;
   background-color: rgb(0, 0, 0);
@@ -200,7 +201,7 @@ section {
   max-width: 60%;
 }
 
-/* MODIFICADO: Sombras do greeting adaptadas para acompanhar o tema sutilmente */
+/* Sombras do greeting adaptadas para acompanhar o tema sutilmente */
 .greeting {
   color: var(--primary);
   font-family: 'Fira Code', monospace;
@@ -248,7 +249,7 @@ section {
     filter 0.5s ease;
 }
 
-/* MODIFICADO: Glow hover da imagem puxa a cor primária ativa */
+/* Glow hover da imagem puxa a cor primária ativa */
 .profile-pic:hover {
   transform: translateY(-8px) rotateX(5deg) rotateY(-5deg) scale(1.02);
   border: 3px solid var(--primary);
@@ -290,7 +291,7 @@ section {
   transition: color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-/* MODIFICADO: Background e sombras reativas para a seção de links */
+/* Background e sombras reativas para a seção de links */
 .contact-links > a:hover {
   color: var(--white);
   background-color: color-mix(in srgb, var(--primary) 15%, transparent);
@@ -327,7 +328,7 @@ section {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* MODIFICADO: Botão "Ver mais" reativo */
+/* Botão "Ver mais" reativo */
 .btn-ver-mais:hover {
   background: color-mix(in srgb, var(--primary) 10%, transparent);
   color: var(--white);
@@ -346,10 +347,11 @@ section {
   to { opacity: 0; transform: translateY(20px) scale(0.95); }
 }
 
+/* MODIFICADO: CONTROLE DO BLUR VARIÁVEL DO VIDRO */
 .project-card {
   background: var(--card-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--card-blur, 8px));
+  -webkit-backdrop-filter: blur(var(--card-blur, 8px));
   border: 1px solid rgba(255, 255, 255, 0.03);
   border-radius: 20px;
   overflow: hidden;
@@ -357,14 +359,14 @@ section {
   flex-direction: column;
   min-height: 450px;
   animation: fadeScaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
 }
 
 .project-card.closing {
   animation: fadeScaleOut 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-/* MODIFICADO: Hover do Card de projetos usando a nova cor */
+/* Hover do Card de projetos usando a nova cor */
 .project-card:hover {
   transform: translateY(-8px) scale(1.01);
   border-color: color-mix(in srgb, var(--primary) 50%, transparent);
@@ -465,15 +467,17 @@ section {
   transform: scale(1.02);
 }
 
+/* MODIFICADO: CONTROLE DO BLUR VARIÁVEL DO VIDRO */
 .formulario-contato {
   background: var(--card-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--card-blur, 8px));
+  -webkit-backdrop-filter: blur(var(--card-blur, 8px));
   padding: 45px;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.03);
   max-width: 800px; 
   width: 100%;
+  transition: backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
 }
 
 .campo-form {
@@ -503,12 +507,13 @@ section {
   padding: 0 4rem;
 }
 
+/* MODIFICADO: CONTROLE DO BLUR VARIÁVEL DO VIDRO */
 .certificate-mini-card {
   display: flex;
   align-items: center;
   background: var(--card-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(var(--card-blur, 8px));
+  -webkit-backdrop-filter: blur(var(--card-blur, 8px));
   border: 1px solid rgba(255, 255, 255, 0.03);
   border-radius: 12px;
   padding: 15px;
@@ -516,14 +521,14 @@ section {
   position: relative;
   overflow: hidden;
   animation: fadeScaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s, background-color 0.3s, backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease;
 }
 
 .certificate-mini-card.closing {
   animation: fadeScaleOut 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-/* MODIFICADO: Hover dos certificados acompanhando a cor secundária reativa */
+/* Hover dos certificados acompanhando a cor secundária reativa */
 .certificate-mini-card:hover {
   transform: translateY(-3px);
   border-color: color-mix(in srgb, var(--primary) 40%, transparent);
@@ -552,6 +557,7 @@ section {
 }
 
 .mini-info {
+  box-grow: 1;
   flex-grow: 1;
 }
 
@@ -670,7 +676,6 @@ footer h2 span {
 }
 
 /* ================= ANIMAÇÃO DE DIGITAÇÃO OPTIMIZADA ================= */
-/* ================= ANIMAÇÃO DE DIGITAÇÃO ROBUSTA (AJUSTADA) ================= */
 .typing-wrapper {
   display: inline-block;
   white-space: nowrap;
@@ -681,22 +686,22 @@ footer h2 span {
 }
 
 .typing-header {
-  max-width: 12ch; /* Limita estritamente o tamanho a 12 caracteres (largura exata do texto) */
+  max-width: 12ch; 
   animation: 
-    typingEffect 4.5s steps(12) infinite, /* Aumentado para 4.5s para escrever mais lento */
+    typingEffect 4.5s steps(12) infinite, 
     blinkCursor 0.75s step-end infinite;
 }
 
 .typing-footer {
-  max-width: 12ch; /* Limita estritamente o tamanho a 12 caracteres */
+  max-width: 12ch; 
   animation: 
-    typingEffect 4.5s steps(12) infinite, /* Aumentado para 4.5s para escrever mais lento */
+    typingEffect 4.5s steps(12) infinite, 
     blinkCursor 0.75s step-end infinite;
 }
 
 @keyframes typingEffect {
   0% { width: 0; }
-  35%, 65% { width: 12ch; } /* Trava a abertura exatamente no tamanho limite estável */
+  35%, 65% { width: 12ch; } 
   100% { width: 0; }
 }
 
@@ -708,7 +713,7 @@ footer h2 span {
 header h1, .footer-content h2 {
   letter-spacing: 0px !important;
   display: inline-flex !important;
-  flex-shrink: 0; /* Garante que o container do h1/h2 não encolha os elementos vizinhos */
+  flex-shrink: 0; 
 }
 
 /* ================= PAINEL FLUTUANTE DE CUSTOMIZAÇÃO DE CORES ================= */
@@ -799,6 +804,15 @@ header h1, .footer-content h2 {
   border-color: var(--white);
 }
 
+/* MODIFICADO: TRAVA GLOBAL DE MOVIMENTOS CASO "ANIMAÇÕES" SEJA DESATIVADA NO APP.JSX */
+body.disable-animations .profile-pic,
+body.disable-animations .project-card,
+body.disable-animations .certificate-mini-card {
+  animation: none !important;
+  transform: none !important;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
 /* ================= MÍDIA QUERIES - RESPONSIVIDADE UNIFICADA ================= */
 @media (max-width: 1200px) {
   header { padding: 1.5rem 2rem; }
@@ -813,6 +827,7 @@ header h1, .footer-content h2 {
 }
 
 @media (max-width: 968px) {
+  /* Mantido o display none original para telas menores */
   body::before { display: none; } 
   .about-content {
     flex-direction: column-reverse; 
