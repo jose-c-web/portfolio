@@ -11,7 +11,7 @@ export default function About() {
         </div>
         
         <div className="profile-wrapper">
-          <img src="./src/assets/IMG/foto-perfil.webp" alt="Foto de Perfil" className="profile-pic" />
+          <img src="/assets/IMG/foto-perfil.webpfoto-perfil.webp" alt="Foto de Perfil" className="profile-pic" />
         </div>
       </div>
     </section>
