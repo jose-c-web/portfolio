@@ -225,20 +225,31 @@ function ParticulasFundo() {
 function CursorNeon() {
   const [pos, setPos] = useState({ x: -100, y: -100 });
   const [expandido, setExpandido] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // 📱 Verifica se a tela é mobile no carregamento inicial
+    const checarMobile = window.innerWidth < 768;
+    setIsMobile(checarMobile);
+    if (checarMobile) return;
+
     const mover = (e) => setPos({ x: e.clientX, y: e.clientY });
     const sobreInterativo = (e) => {
       const alvo = e.target.closest && e.target.closest('a, button, input');
       setExpandido(!!alvo);
     };
+    
     window.addEventListener('mousemove', mover);
     window.addEventListener('mouseover', sobreInterativo);
+    
     return () => {
       window.removeEventListener('mousemove', mover);
       window.removeEventListener('mouseover', sobreInterativo);
     };
   }, []);
+
+  // 📱 Se for dispositivo mobile, não renderiza absolutamente nada no DOM
+  if (isMobile) return null;
 
   return (
     <div
@@ -625,18 +636,24 @@ export default function App() {
           <Contact />
           <Footer />
 
-          <button 
-            className="botao-engrenagem" 
-            onMouseDown={iniciarArrastar}
-            onTouchStart={iniciarArrastar}
-            onClick={() => { if(!hasMoved.current) abrirConfiguracoes(); }}
-            style={{
-              position: 'fixed', left: menuAberto ? 'auto' : `${btnPos.x}px`, right: menuAberto ? '280px' : 'auto', top: `${btnPos.y}px`, zIndex: 10000,
-              cursor: isDragging.current ? 'grabbing' : 'grab', transition: isDragging.current ? 'none' : 'left 0.4s ease, right 0.4s ease, top 0.2s ease-out'
-            }}
-          >
-            {menuAberto ? "×" : "⚙️"}
-          </button>
+            <button 
+              className="botao-engrenagem" 
+              onMouseDown={iniciarArrastar}
+              onTouchStart={iniciarArrastar}
+              onClick={() => { if(!hasMoved.current) abrirConfiguracoes(); }}
+              style={{
+                position: 'fixed', 
+                left: menuAberto ? 'auto' : `${btnPos.x}px`, 
+                right: menuAberto ? '280px' : 'auto', 
+                top: `${btnPos.y}px`, 
+                zIndex: 10000,
+                touchAction: 'none', // 🌟 ISSO AQUI impede o scroll da página no mobile ao arrastar!
+                cursor: isDragging.current ? 'grabbing' : 'grab', 
+                transition: isDragging.current ? 'none' : 'left 0.4s ease, right 0.4s ease, top 0.2s ease-out'
+              }}
+            >
+              {menuAberto ? "×" : "⚙️"}
+            </button>
 
           <div className={`GerenciadorCores ${menuAberto ? "aberto" : ""}`}>
             <div className="conteudo-cores" style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxHeight: '85vh', overflowY: 'auto' }}>
