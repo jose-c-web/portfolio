@@ -31,6 +31,13 @@ export default function Projects() {
       tech: "HTML · CSS",
       image: imgAnaDoces, // 👈 Modificado
       link: "https://jose-c-web.github.io/Ana_Doces/"
+    },
+    {
+      title: "Projeto Interligado",
+      description: "O Projeto Interligado foi um  projeto que reuniu um grupo  de 6 pessoas do SENAI na sala, e eu e esses integrantes fizemos este site com conexão e validação pelo firebase funcionando",
+      tech: "HTML · CSS · JavaScript",
+      image: imgAnaDoces, // 👈 Modificado
+      link: "https://jose-c-web.github.io/projeto_interligado/"
     }
   ];
 

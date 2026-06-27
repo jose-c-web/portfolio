@@ -44,6 +44,7 @@ const traducoes = {
     corHexPlaceholder: "#4b80e2",
     corHexInvalida: "Hex inválido. Use o formato #RRGGBB",
     tipografia: "Tipografia",
+    tamanhoFonteLabel: "Tamanho da Fonte",
     efeitosSistema: "Efeitos & Sistema",
     lanterna: "Lanterna Mouse",
     animacoes: "Animações",
@@ -67,6 +68,7 @@ const traducoes = {
     corHexPlaceholder: "#4b80e2",
     corHexInvalida: "Invalid hex. Use #RRGGBB format",
     tipografia: "Typography",
+    tamanhoFonteLabel: "Font Size",
     efeitosSistema: "Effects & System",
     lanterna: "Mouse Flashlight",
     animacoes: "Animations",
@@ -87,6 +89,11 @@ const traducoes = {
 const FONTES_DISPONIVEIS = [
   { nome: "Poppins", valor: "'Poppins', sans-serif" },
   { nome: "Fira Code", valor: "'Fira Code', monospace" },
+  { nome: "Roboto", valor: "'Roboto', sans-serif" },
+  { nome: "Montserrat", valor: "'Montserrat', sans-serif" },
+  { nome: "JetBrains", valor: "'JetBrains Mono', monospace" },
+  { nome: "Ubuntu", valor: "'Ubuntu', sans-serif" },
+  { nome: "Retro 8-Bit", valor: "'Press Start 2P', cursive" }
 ];
 
 function hexParaRgbString(hex) {
@@ -107,7 +114,7 @@ function MatrixRainEffect() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖRAﾘﾙﾚﾛﾜﾝ".split("");
+    const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒMOYAﾕﾖRAﾘﾙﾚﾛﾜﾝ".split("");
     const tamanhoFonte = 14;
     const colunas = canvas.width / tamanhoFonte;
     const gotasChuva = Array.from({ length: colunas }).fill(1);
@@ -228,7 +235,6 @@ function CursorNeon() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // 📱 Verifica se a tela é mobile no carregamento inicial
     const checarMobile = window.innerWidth < 768;
     setIsMobile(checarMobile);
     if (checarMobile) return;
@@ -248,7 +254,6 @@ function CursorNeon() {
     };
   }, []);
 
-  // 📱 Se for dispositivo mobile, não renderiza absolutamente nada no DOM
   if (isMobile) return null;
 
   return (
@@ -280,6 +285,7 @@ export default function App() {
   const [animacoesAtivas, setAnimacoesAtivas] = useState(true);
   const [nivelBlur, setNivelBlur] = useState(8);
   const [fonteSelecionada, setFonteSelecionada] = useState("'Poppins', sans-serif");
+  const [tamanhoFonte, setTamanhoFonte] = useState(16); // 🌟 Estado do tamanho da fonte em px
   const [particulasAtivas, setParticulasAtivas] = useState(true);
   const [contadorVisitas, setContadorVisitas] = useState(1337);
 
@@ -575,6 +581,11 @@ export default function App() {
     document.documentElement.style.setProperty('--font-family', fonteSelecionada);
   }, [fonteSelecionada]);
 
+  // 🌟 Sincroniza o tamanho da fonte globalmente no HTML via variável CSS
+  useEffect(() => {
+    document.documentElement.style.setProperty('--font-size-base', `${tamanhoFonte}px`);
+  }, [tamanhoFonte]);
+
   useEffect(() => {
     document.body.classList.toggle('cyber-glitch-active', glitchAtivo);
   }, [glitchAtivo]);
@@ -647,7 +658,7 @@ export default function App() {
                 right: menuAberto ? '280px' : 'auto', 
                 top: `${btnPos.y}px`, 
                 zIndex: 10000,
-                touchAction: 'none', // 🌟 ISSO AQUI impede o scroll da página no mobile ao arrastar!
+                touchAction: 'none', 
                 cursor: isDragging.current ? 'grabbing' : 'grab', 
                 transition: isDragging.current ? 'none' : 'left 0.4s ease, right 0.4s ease, top 0.2s ease-out'
               }}
@@ -754,15 +765,41 @@ export default function App() {
 
               <hr style={{ border: '0', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }} />
 
+              {/* 🌟 SEÇÃO DE TIPOGRAFIA ATUALIZADA */}
               <div>
                 <h4>{t.tipografia}</h4>
-                <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '8px' }}>
                   {FONTES_DISPONIVEIS.map((fonte) => (
-                    <button key={fonte.valor} onClick={() => setFonteSelecionada(fonte.valor)} style={{ ...styles.fontBtn, fontFamily: fonte.valor, border: fonteSelecionada === fonte.valor ? '1px solid var(--primary)' : '1px solid #222' }}>
+                    <button 
+                      key={fonte.valor} 
+                      onClick={() => setFonteSelecionada(fonte.valor)} 
+                      style={{ 
+                        ...styles.fontBtn, 
+                        fontFamily: fonte.valor, 
+                        fontSize: '0.75rem',
+                        border: fonteSelecionada === fonte.valor ? '1px solid var(--primary)' : '1px solid #222' 
+                      }}
+                    >
                       {fonte.nome}
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* 🌟 NOVO CONTROLE: AUMENTAR/DIMINUIR FONTE */}
+              <div>
+                <div style={styles.controlRow}>
+                  <span>{t.tamanhoFonteLabel}</span>
+                  <span style={{ fontFamily: "'Fira Code', monospace", color: 'var(--primary)' }}>{tamanhoFonte}px</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="12" 
+                  max="24" 
+                  value={tamanhoFonte} 
+                  onChange={(e) => setTamanhoFonte(Number(e.target.value))} 
+                  style={{ width: '100%', accentColor: 'var(--primary)' }} 
+                />
               </div>
 
               <div>

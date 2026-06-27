@@ -16,6 +16,7 @@
   /* Variáveis dinâmicas controladas pelo JavaScript do Mouse */
   --mouse-x: 50%;
   --mouse-y: 50%;
+  --font-size-base: 16px;
 }
 
 * {
@@ -39,6 +40,8 @@ body {
   overflow-x: hidden;
   line-height: 1.6;
   position: relative;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
 }
 
 /* 🩹 FIX: garante que todos os títulos herdem a cor branca corretamente,
