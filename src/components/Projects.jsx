@@ -1,4 +1,3 @@
-// 1. Importações corrigidas com nomes exclusivos para as imagens dos projetos
 import imgGeTech from '../assets/IMG/GeTech.png';
 import imgFlixBox from '../assets/IMG/FlixBox.png';
 import imgAnaDoces from '../assets/IMG/Ana_Doces.png';
@@ -9,34 +8,33 @@ export default function Projects() {
   const [expandido, setExpandido] = useState(false);
   const [estaFechando, setEstaFechando] = useState(false);
 
-  // 2. Mapeamento da array apontando para as variáveis que importamos acima
   const meusProjetos = [
     {
       title: "GeTech Site",
       description: "Plataforma web desenvolvida para exibição de serviços tecnológicos e design responsivo.",
       tech: "HTML · CSS · JavaScript",
-      image: imgGeTech, // 👈 Modificado
+      image: imgGeTech,
       link: "https://jose-c-web.github.io/GeTech/"
     },
     {
       title: "Flix Box",
       description: "FlixBox é uma plataforma de séries simulado (não funcional)",
       tech: "HTML · CSS · JavaScript",
-      image: imgFlixBox, // 👈 Modificado
+      image: imgFlixBox,
       link: "https://jose-c-web.github.io/FlixBox/"
     },
     {
       title: "Ana Doces",
       description: "Ana Doces é um site de culinária que foi um dos primeiros projetos feito",
       tech: "HTML · CSS",
-      image: imgAnaDoces, // 👈 Modificado
+      image: imgAnaDoces,
       link: "https://jose-c-web.github.io/Ana_Doces/"
     },
     {
       title: "Projeto Interligado",
-      description: "O Projeto Interligado foi um  projeto que reuniu um grupo  de 6 pessoas do SENAI na sala, e eu e esses integrantes fizemos este site com conexão e validação pelo firebase funcionando",
+      description: "O Projeto Interligado foi um projeto que reuniu um grupo de 6 pessoas do SENAI na sala, e eu e esses integrantes fizemos este site com conexão e validação pelo firebase funcionando",
       tech: "HTML · CSS · JavaScript",
-      image: imgAnaDoces, // 👈 Modificado
+      image: imgAnaDoces,
       link: "https://jose-c-web.github.io/projeto_interligado/"
     }
   ];
@@ -57,7 +55,7 @@ export default function Projects() {
   };
 
   return (
-    <section id="projects">
+    <section id="projects" className="font-style-custom">
       <h2 className="section-title">Meus Projetos</h2>
       
       <div className="projects-grid">
@@ -66,7 +64,7 @@ export default function Projects() {
           const classeAnimacao = ehExtra && estaFechando ? "closing" : "";
 
           return (
-            <div className={`project-card ${classeAnimacao}`} key={index}>
+            <div className={`project-card ${classeAnimacao} font-style-custom`} key={index}>
               {projeto.image && (
                 <div className="card-img">
                   <img src={projeto.image} alt={projeto.title} />
@@ -83,7 +81,7 @@ export default function Projects() {
                 </div>
                 
                 <div className="project-links">
-                  <a href={projeto.link} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>
+                  <a href={projeto.link} target="_blank" rel="noreferrer" className="font-style-custom" style={{ color: 'var(--primary)' }}>
                     Ver Repositório &rarr;
                   </a>
                 </div>
@@ -95,7 +93,7 @@ export default function Projects() {
 
       {meusProjetos.length > 2 && (
         <div className="ver-mais-container">
-          <button className="btn-ver-mais" onClick={lidarComClique}>
+          <button className="btn-ver-mais font-style-custom" onClick={lidarComClique}>
             {expandido ? "Ver menos" : "Ver mais"}
           </button>
         </div>

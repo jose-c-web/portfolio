@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Poppins:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Ubuntu:wght@300;400;500;700&family=Press+Start+2P&display=swap');
 
 :root {
   --primary: #4b80e2;           /* Cor Dinâmica (Alterada pelo seu Painel) */
@@ -20,28 +20,31 @@
 }
 
 * {
-  margin: 0;
+margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: var(--font-family), sans-serif; 
   scroll-behavior: smooth;
+  /* Força todos os elementos a adotarem a fonte escolhida no painel */
+  font-family: var(--font-family), sans-serif !important;
 }
 
 html {
+  /* Base do rem — controlada dinamicamente pelo slider de fonte */
+  font-size: var(--font-size-base, 16px);
   /* Permite que o Firefox use a barra de rolagem customizada também */
   scrollbar-color: var(--primary) rgba(255, 255, 255, 0.04);
   scrollbar-width: thin;
 }
 
 body {
-  background-color: var(--bg-dark);
+background-color: var(--bg-dark);
   color: var(--white);
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.6;
   position: relative;
-  font-family: var(--font-family);
-  font-size: var(--font-size-base);
+  /* Controla o tamanho base dinamicamente */
+  font-size: var(--font-size-base) !important;
 }
 
 /* 🩹 FIX: garante que todos os títulos herdem a cor branca corretamente,
@@ -423,9 +426,9 @@ section {
 
 /* Card de Projetos */
 .project-card {
-  background: var(--card-bg);
-  backdrop-filter: blur(var(--card-blur, 8px));
-  -webkit-backdrop-filter: blur(var(--card-blur, 8px));
+background: var(--card-bg);
+  backdrop-filter: blur(var(--card-blur, 8px)) !important;
+  -webkit-backdrop-filter: blur(var(--card-blur, 8px)) !important;
   border: 1px solid rgba(255, 255, 255, 0.03);
   border-radius: 20px;
   overflow: hidden;
@@ -588,9 +591,9 @@ section {
 .certificate-mini-card {
   display: flex;
   align-items: center;
-  background: var(--card-bg);
-  backdrop-filter: blur(var(--card-blur, 8px));
-  -webkit-backdrop-filter: blur(var(--card-blur, 8px));
+background: var(--card-bg);
+  backdrop-filter: blur(var(--card-blur, 8px)) !important;
+  -webkit-backdrop-filter: blur(var(--card-blur, 8px)) !important;
   border: 1px solid rgba(255, 255, 255, 0.03);
   border-radius: 12px;
   padding: 15px;
@@ -1409,4 +1412,4 @@ body.lanterna-ativa .certificate-mini-card:hover::after {
   header nav a { margin-left: 0.4rem; font-size: 0.68rem; }
   .about-text h3 { font-size: 1.8rem; }
   .profile-pic { width: 180px; height: 180px; }
-}   
+}

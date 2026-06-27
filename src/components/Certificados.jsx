@@ -1,4 +1,3 @@
-// 1. Importações corrigidas com nomes únicos para cada imagem
 import imgExcel from '../assets/Certificados/Excel_Basico.png';
 import imgSeguranca from '../assets/Certificados/Competencia_Trsnversal.png';
 import imgFluencia from '../assets/Certificados/Flu.png';
@@ -11,25 +10,24 @@ export default function Certificates() {
   const [avisoIndex, setAvisoIndex] = useState(null);
   const [textosExpandidos, setTextosExpandidos] = useState({});
 
-  // 2. Mapeamento da array apontando para as variáveis de imagem importadas acima
   const meusCertificados = [
     {
       title: "Excel Básico",
       issuer: "Executa a edição e formatação de dados em uma planilha e utiliza as funções e fórmulas básicas do Excel.",
       hours: "20 horas",
-      image: imgExcel // 👈 Substituído o texto pela variável importada
+      image: imgExcel
     },
     {
       title: "Competência Transversal - SEGURANÇA NO TRABALHO",
       issuer: "Conceitos e Principais acidentes de Trabalho no ambiente corporativo e industrial contemporâneo.",
       hours: "14 horas",
-      image: imgSeguranca // 👈 Substituído o texto pela variável importada
+      image: imgSeguranca
     },
     {
       title: "Fluência - Fundamentos da inteligência artificial",
-      issuer: "Compreende os fundamentos da inteligência artificial para melhoria da produtividade e para o auxílio na tomada de decisões, identificando os impactos nos mecanismos de pesquisa online, reconhecendo o Bing Chat e Copilot do Microsoft 365 como ferramentas de facilitação das tarefas diárias e processos de trabalho e considerando questões éticas.",
+      issuer: "Compreende os fundamentos da inteligência artificial para melhoria da produtividade e para o auxílio na tomada de decisões, identificando os impactos nos mechanisms de pesquisa online, reconhecendo o Bing Chat e Copilot do Microsoft 365 como ferramentas de facilitação das tarefas diárias e processos de trabalho e considerando questões éticas.",
       hours: "08 horas",
-      image: imgFluencia // 👈 Substituído o texto pela variável importada
+      image: imgFluencia
     }
   ];
 
@@ -81,6 +79,7 @@ export default function Certificates() {
         {textoFormatado}{" "}
         <button 
           onClick={(e) => alternarTextoLongo(e, index)}
+          className="font-style-custom"
           style={{
             background: 'none',
             border: 'none',
@@ -99,7 +98,7 @@ export default function Certificates() {
   };
 
   return (
-    <section id="certificates" style={{ minHeight: 'auto', padding: '4rem 0' }}>
+    <section id="certificates" className="font-style-custom" style={{ minHeight: 'auto', padding: '4rem 0' }}>
       <h2 className="section-title">Certificados</h2>
       
       <div className="certificate-mini-grid">
@@ -110,7 +109,7 @@ export default function Certificates() {
 
           return (
             <div 
-              className={`certificate-mini-card ${classeAnimacao} ${exibindoAviso ? 'aviso-ativo' : ''}`} 
+              className={`certificate-mini-card ${classeAnimacao} ${exibindoAviso ? 'aviso-ativo' : ''} font-style-custom`} 
               key={index}
               onClick={() => gerenciarAvisoContato(index)}
               style={{ cursor: 'pointer' }}
@@ -147,7 +146,7 @@ export default function Certificates() {
 
       {meusCertificados.length > 2 && (
         <div className="ver-mais-container">
-          <button className="btn-ver-mais" onClick={lidarComCliqueVerMais}>
+          <button className="btn-ver-mais font-style-custom" onClick={lidarComCliqueVerMais}>
             {expandido ? "Ver menos" : "Ver certificados"}
           </button>
         </div>

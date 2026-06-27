@@ -573,17 +573,20 @@ export default function App() {
     document.body.classList.toggle('disable-animations', !animacoesAtivas);
   }, [animacoesAtivas]);
 
+// 🌟 ALTERAÇÃO 3: Atualiza o desfoque do vidro (Blur) sempre que o slider mudar
   useEffect(() => {
     document.documentElement.style.setProperty('--card-blur', `${nivelBlur}px`);
   }, [nivelBlur]);
 
+  // Atualiza apenas a família de fonte global — sem tocar no tamanho (controlado pelo slider)
   useEffect(() => {
     document.documentElement.style.setProperty('--font-family', fonteSelecionada);
   }, [fonteSelecionada]);
 
-  // 🌟 Sincroniza o tamanho da fonte globalmente no HTML via variável CSS
+  // Aplica o tamanho de fonte do slider ao CSS global (html é a base do rem)
   useEffect(() => {
     document.documentElement.style.setProperty('--font-size-base', `${tamanhoFonte}px`);
+    document.documentElement.style.fontSize = `${tamanhoFonte}px`;
   }, [tamanhoFonte]);
 
   useEffect(() => {

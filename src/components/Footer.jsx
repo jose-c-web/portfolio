@@ -2,7 +2,7 @@ export default function Footer() {
   const anoAtual = new Date().getFullYear();
 
   return (
-    <footer>
+    <footer className="font-style-custom">
       <div className="footer-content">
         <h2 className="typing-wrapper typing-footer">
           &lt;/Jose.<span>Web</span>&gt;
