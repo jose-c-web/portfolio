@@ -921,8 +921,226 @@ body.cyber-glitch-active .section-title:hover {
   text-shadow: 0 0 8px var(--primary);
 }
 
+/* 🔮 ESTILOS DA TELA DE BOOT (LOADER) */
+.boot-sequence-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #050505;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.boot-terminal-text {
+  font-family: 'Fira Code', monospace;
+  color: #00ff41; /* Verde clássico hacker, ou mude para var(--primary) */
+  font-size: 1.1rem;
+  line-height: 2;
+  max-width: 600px;
+  width: 100%;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
+}
+
+.boot-line {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typingLine 0.3s steps(30, end);
+}
+
+.boot-blinking-cursor {
+  display: inline-block;
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* 🏆 ESTILOS DO POP-UP DE CONQUISTAS (ESTILO STEAM) */
+.achievement-popup {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  background: rgba(10, 10, 10, 0.9);
+  border: 1px solid var(--primary, #4b80e2);
+  box-shadow: 0 0 20px rgba(75, 128, 226, 0.25), inset 0 0 10px rgba(75, 128, 226, 0.1);
+  padding: 12px 18px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 100005;
+  animation: slideInAchievement 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  backdrop-filter: blur(10px);
+}
+
+.achievement-icon {
+  font-size: 1.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.achievement-info h5 {
+  margin: 0;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--primary, #4b80e2);
+  text-transform: uppercase;
+}
+
+.achievement-info p {
+  margin: 2px 0 0 0;
+  font-size: 0.85rem;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* 🏆 PAINEL VISUAL DE CONQUISTAS (DENTRO DA ENGRENAGEM) */
+.secao-conquistas-painel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.secao-conquistas-painel h4 {
+  font-size: 0.85rem;
+  color: #fff;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lista-conquistas-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-conquista-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+/* Estado de Conquistas Bloqueadas (Apagadas / Desativadas) */
+.item-conquista-status.bloqueada {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  opacity: 0.4;
+  filter: grayscale(100%);
+}
+
+/* Estado de Conquistas Desbloqueadas (Brilhando em Neon!) */
+.item-conquista-status.desbloqueada {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--primary, #4b80e2);
+  box-shadow: 0 0 10px rgba(75, 128, 226, 0.15);
+  opacity: 1;
+  filter: none;
+}
+
+.icone-conquista-status {
+  font-size: 1.3rem;
+  min-width: 28px;
+  text-align: center;
+}
+
+.info-conquista-status h6 {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.item-conquista-status.desbloqueada .info-conquista-status h6 {
+  color: var(--primary, #4b80e2); /* Destaca o título da ganha com a cor neon ativa */
+}
+
+.info-conquista-status p {
+  margin: 1px 0 0 0;
+  font-size: 0.68rem;
+  color: #a9a9a9;
+  line-height: 1.2;
+}
+
+@keyframes slideInAchievement {
+  from { transform: translateX(-120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.project-card::before,
+.certificate-mini-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, -100px) var(--mouse-y, -100px), 
+    rgba(var(--primary-rgb), 0.15), /* Cor primária neon bem suave */
+    transparent 40%
+  );
+  z-index: 2; /* Fica acima do conteúdo do cartão */
+  pointer-events: none; /* Não interfere nos cliques */
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Ativa a luz apenas quando a lanterna estiver ativa no sistema */
+body.lanterna-ativa .project-card::before,
+body.lanterna-ativa .certificate-mini-card::before {
+  opacity: var(--lanterna-opacity, 1);
+}
+
+/* Efeito de borda neon que acende no ponto de toque (Opcional - Alto impacto) */
+.project-card::after,
+.certificate-mini-card::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: radial-gradient(
+    300px circle at var(--mouse-x, -100px) var(--mouse-y, -100px), 
+    rgba(var(--primary-rgb), 0.5), /* Borda neon mais forte */
+    transparent 40%
+  );
+  z-index: 1; /* Fica atrás do conteúdo mas na frente da borda padrão */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  border-radius: inherit; /* Segue o arredondamento do cartão */
+}
+
+body.lanterna-ativa .project-card::after,
+body.lanterna-ativa .certificate-mini-card::after {
+  opacity: var(--lanterna-opacity, 1);
+}
+
 /* ================= MÍDIA QUERIES - RESPONSIVIDADE UNIFICADA ================= */
 /* ================= RESPONSIVIDADE ATUALIZADA ================= */
+
+/* ==========================================================================
+   MÍDIA QUERIES - RESPONSIVIDADE E ACESSIBILIDADE ULTRA-MODERNA
+   ========================================================================== */
+
+/* ==========================================================================
+   MÍDIA QUERIES - RESPONSIVIDADE E AJUSTE DE CONQUISTAS
+   ========================================================================== */
 
 @media (max-width: 1200px) {
   header { padding: 1.5rem 2rem; }
@@ -962,9 +1180,11 @@ body.cyber-glitch-active .section-title:hover {
 
 @media (max-width: 768px) {
   header { flex-direction: column; gap: 1rem; padding: 1rem; }
-  header nav a { margin-left: 1.5rem; margin-right: 1.5rem; font-size: 0.95rem; }
-  header nav { justify-content: center; width: 100%; }
-  section { padding: 12rem 0 3rem 0; }
+  header nav a { margin-left: 1.2rem; margin-right: 1.2rem; font-size: 0.95rem; }
+  header nav { justify-content: center; width: 100%; display: flex; flex-wrap: wrap; }
+  
+  section { padding: 6rem 0 3rem 0; }
+  
   .about-content, .projects-grid, .section-title { padding: 0 1.5rem; }
   .projects-grid { grid-template-columns: 1fr; gap: 1.5rem; }
   .project-card { min-height: auto; }
@@ -974,7 +1194,6 @@ body.cyber-glitch-active .section-title:hover {
   .footer-tagline { font-size: 0.85rem; }
   .certificate-mini-grid { grid-template-columns: 1fr; padding: 0 1.5rem; gap: 1rem; } 
 
-  /* CRÍTICO: Desativa cursor customizado em telas de toque e força o padrão a voltar */
   .custom-neon-cursor {
     display: none !important;
   }
@@ -982,7 +1201,6 @@ body.cyber-glitch-active .section-title:hover {
     cursor: auto !important;
   }
 
-  /* Garante o comportamento lateral estável do painel no Mobile/Tablet */
   .GerenciadorCores {
     top: 50%;
     transform: translateY(-50%);
@@ -992,11 +1210,20 @@ body.cyber-glitch-active .section-title:hover {
   .GerenciadorCores.aberto {
     right: 0;
   }
+
+  .achievement-popup {
+    bottom: 16px;
+    left: 16px;
+    right: 16px; 
+    max-width: calc(100vw - 32px);
+    padding: 10px 14px;
+  }
+  .achievement-icon { font-size: 1.5rem; }
 }
 
 @media (max-width: 480px) {
   header h1 { font-size: 1.3rem; }
-  header nav a { margin-left: 0.8rem; margin-right: 0.8rem; font-size: 0.85rem; }
+  header nav a { margin-left: 0.6rem; margin-right: 0.6rem; font-size: 0.85rem; }
   .about-text h3 { font-size: 2.2rem; }
   .about-text p { font-size: 1rem; }
   .profile-pic { width: 220px; height: 220px; }
@@ -1012,12 +1239,12 @@ body.cyber-glitch-active .section-title:hover {
   .mini-info h3 { font-size: 0.95rem; }
   .mini-arrow { display: none; }
   
-  /* ⚙️ Ajustes Corrigidos do Painel de Cores em Telas Pequenas */
+  /* ⚙️ Gerenciador de Cores e Layout do Menu Lateral */
   .GerenciadorCores {
     top: 50%;
     transform: translateY(-50%);
     width: 250px;
-    right: -250px; /* Mantém o comportamento de slide da direita correto */
+    right: -250px; 
     padding: 15px 12px;
   }
   .GerenciadorCores.aberto {
@@ -1026,11 +1253,10 @@ body.cyber-glitch-active .section-title:hover {
   
   .conteudo-cores {
     gap: 10px !important;
-    max-height: 75vh !important; /* Permite rolagem confortável da playlist e controles */
+    max-height: 75vh !important; 
     width: 100%;
   }
 
-  /* Reduz ligeiramente os itens internos para economizar espaço vertical */
   .grid-paletas {
     gap: 6px;
     grid-template-columns: repeat(3, 1fr);
@@ -1040,7 +1266,6 @@ body.cyber-glitch-active .section-title:hover {
     height: 28px;
   }
   
-  /* Melhora o espaçamento do Mini Terminal no Mobile */
   .mini-terminal-container {
     padding: 6px;
   }
@@ -1048,9 +1273,41 @@ body.cyber-glitch-active .section-title:hover {
     font-size: 0.75rem;
   }
   
-  /* Botões da Playlist mais acessíveis ao toque */
   .btn-playlist {
     font-size: 1.1rem;
     padding: 6px 12px;
+  }
+
+  .boot-terminal-text {
+    font-size: 0.8rem !important;
+    line-height: 1.8;
+  }
+
+  .achievement-popup {
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    gap: 10px;
+  }
+  .achievement-info h5 { font-size: 0.55rem; }
+  .achievement-info p { font-size: 0.75rem; }
+
+  /* 🏆 AJUSTE DAS CONQUISTAS NO MOBILE */
+  .secao-conquistas-painel h4 {
+    font-size: 0.75rem;
+  }
+  .item-conquista-status {
+    padding: 6px;
+    gap: 8px;
+  }
+  .icone-conquista-status {
+    font-size: 1.1rem;
+    min-width: 22px;
+  }
+  .info-conquista-status h6 {
+    font-size: 0.75rem;
+  }
+  .info-conquista-status p {
+    font-size: 0.6rem;
   }
 }
