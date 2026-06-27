@@ -5,6 +5,7 @@ import Projects from './components/Projects';
 import Certificados from './components/Certificados';
 import Contact from './components/Contact'; 
 import Footer from './components/Footer';
+import Clock from './components/Clock';
 import './App.css';
 
 import track1 from './assets/Musics/perdas.mp3';
@@ -640,6 +641,10 @@ export default function App() {
           <div className={`GerenciadorCores ${menuAberto ? "aberto" : ""}`}>
             <div className="conteudo-cores" style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxHeight: '85vh', overflowY: 'auto' }}>
               
+              <div style={{ textAlign: 'center' }}>
+                  <Clock />
+                </div>
+
               <div style={{ background: 'rgba(0,0,0,0.4)', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-neon)', textAlign: 'center' }}>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-gray)', letterSpacing: '1px', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>{t.sistemaConectado}</span>
                 <div style={{ fontFamily: "'Fira Code', monospace", color: 'var(--primary)', fontWeight: 'bold', fontSize: '1.1rem', letterSpacing: '2px' }}>
