@@ -10,6 +10,7 @@ export default function Projects() {
 
   const meusProjetos = [
     {
+      id: "getech",
       title: "GeTech Site",
       description: "Plataforma web desenvolvida para exibição de serviços tecnológicos e design responsivo.",
       tech: "HTML · CSS · JavaScript",
@@ -17,6 +18,7 @@ export default function Projects() {
       link: "https://jose-c-web.github.io/GeTech/"
     },
     {
+      id: "flixbox",
       title: "Flix Box",
       description: "FlixBox é uma plataforma de séries simulado (não funcional)",
       tech: "HTML · CSS · JavaScript",
@@ -24,6 +26,7 @@ export default function Projects() {
       link: "https://jose-c-web.github.io/FlixBox/"
     },
     {
+      id: "anadoces",
       title: "Ana Doces",
       description: "Ana Doces é um site de culinária que foi um dos primeiros projetos feito",
       tech: "HTML · CSS",
@@ -31,10 +34,11 @@ export default function Projects() {
       link: "https://jose-c-web.github.io/Ana_Doces/"
     },
     {
+      id: "interligado",
       title: "Projeto Interligado",
       description: "O Projeto Interligado foi um projeto que reuniu um grupo de 6 pessoas do SENAI na sala, e eu e esses integrantes fizemos este site com conexão e validação pelo firebase funcionando",
       tech: "HTML · CSS · JavaScript",
-      image: imgAnaDoces,
+      image: imgAnaDoces, // Altere para a imagem correta do projeto se tiver uma dedicada!
       link: "https://jose-c-web.github.io/projeto_interligado/"
     }
   ];
@@ -60,28 +64,33 @@ export default function Projects() {
       
       <div className="projects-grid">
         {projetosVisiveis.map((projeto, index) => {
+          // Identifica corretamente se o card pertence ao grupo do "Ver Mais"
           const ehExtra = index >= 2;
           const classeAnimacao = ehExtra && estaFechando ? "closing" : "";
 
           return (
-            <div className={`project-card ${classeAnimacao} font-style-custom`} key={index}>
+            <div 
+              className={`project-card ${classeAnimacao} font-style-custom`} 
+              key={projeto.id} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+            >
               {projeto.image && (
                 <div className="card-img">
                   <img src={projeto.image} alt={projeto.title} />
                 </div>
               )}
 
-              <div className="card-body">
+              {/* Ajustado com flex para garantir que mesmo com textos longos o layout se alinhe perfeitamente */}
+              <div className="card-body" style={{ flex: '1', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
                   <h3>{projeto.title}</h3>
                   <p>{projeto.description}</p>
-                  <p style={{ color: 'var(--primary)', marginBottom: '2rem' }}>
+                  <p style={{ color: 'var(--primary)', marginBottom: '1.5rem' }}>
                     <small>{projeto.tech}</small>
                   </p>
                 </div>
                 
-                <div className="project-links">
-                  <a href={projeto.link} target="_blank" rel="noreferrer" className="font-style-custom" style={{ color: 'var(--primary)' }}>
+                <div className="project-links" style={{ marginTop: 'auto' }}>
+                  <a href={projeto.link} target="_blank" rel="noreferrer" className="font-style-custom" style={{ color: 'var(--primary)', display: 'inline-block' }}>
                     Ver Repositório &rarr;
                   </a>
                 </div>

@@ -1412,4 +1412,344 @@ body.lanterna-ativa .certificate-mini-card:hover::after {
   header nav a { margin-left: 0.4rem; font-size: 0.68rem; }
   .about-text h3 { font-size: 1.8rem; }
   .profile-pic { width: 180px; height: 180px; }
+}   
+/* ═══════════════════════════════════════════════════
+   NOVAS FEATURES — adicionadas ao App.css
+   ═══════════════════════════════════════════════════ */
+
+/* ── Barra de progresso de leitura ── */
+/* (renderizada inline no componente via style, sem classe extra necessária) */
+
+/* ── Botão voltar ao topo ── */
+.btn-voltar-topo {
+  position: fixed;
+  bottom: 32px;
+  right: 24px;
+  z-index: 9999;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #000;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--primary) 60%, transparent);
+  transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-voltar-topo:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--primary) 80%, transparent);
+}
+
+/* ── Toast de boas-vindas ── */
+.toast-boasvindas {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 9998;
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  padding: 14px 18px;
+  color: #fff;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 340px;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 30%, transparent);
+  animation: toastSlide 0.4s ease;
+}
+.toast-boasvindas button {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Rastro de cursor ── */
+.cursor-trail-particle {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  pointer-events: none;
+  z-index: 99990;
+  transform: translate(-50%, -50%);
+  animation: trailFade 0.6s ease forwards;
+  box-shadow: 0 0 6px var(--primary);
+}
+@keyframes trailFade {
+  0%   { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0;   transform: translate(-50%, -50%) scale(0.1); }
+}
+
+/* ── Easter Egg: Energético (lata neon + status bars) ── */
+.energetico-easter-egg {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(0, 0, 0, 0.93);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  animation: monsterBurst 0.3s ease;
+  padding: 20px;
+}
+@keyframes monsterBurst {
+  0%   { opacity: 0; transform: scale(0.8); }
+  60%  { transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.energetico-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+  cursor: default;
+}
+
+/* Lata branca "Volt Zero" — SVG 3D giratório */
+.energetico-lata-svg-wrap {
+  width: 150px;
+  height: 255px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 22px color-mix(in srgb, var(--primary, #4b80e2) 55%, transparent))
+          drop-shadow(0 18px 22px rgba(0, 0, 0, 0.55));
+  animation: latagiro 2.6s ease-in-out infinite;
+  transform-origin: 50% 85%;
+}
+.energetico-lata-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+@keyframes latagiro {
+  0%   { transform: rotate(0deg) translateY(0); }
+  25%  { transform: rotate(7deg) translateY(-6px); }
+  50%  { transform: rotate(0deg) translateY(0); }
+  75%  { transform: rotate(-7deg) translateY(-6px); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+
+.energetico-text, .cafe-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.energetico-text span {
+  font-family: 'Fira Code', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary, #4b80e2);
+  text-shadow: 0 0 16px var(--primary, #4b80e2), 0 0 32px var(--primary, #4b80e2);
+  letter-spacing: 3px;
+}
+.energetico-text small, .cafe-text small {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.78rem;
+  color: #999;
+  letter-spacing: 1px;
+}
+
+/* Barrinhas de status (compartilhadas entre Energético e Café) */
+.status-bars-container {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.status-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.status-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  color: #ccc;
+  letter-spacing: 0.5px;
+}
+.status-bar-label b {
+  color: var(--primary, #4b80e2);
+}
+.status-bar-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  position: relative;
+}
+.status-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--primary, #4b80e2), color-mix(in srgb, var(--primary, #4b80e2) 60%, white));
+  box-shadow: 0 0 8px var(--primary, #4b80e2);
+  width: 0%;
+  transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Easter Egg: Café (xícara com vapor) */
+.cafe-easter-egg {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(10, 6, 2, 0.93);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  animation: monsterBurst 0.3s ease;
+  padding: 20px;
+}
+.cafe-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
+  cursor: default;
+}
+.cafe-xicara-wrap {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.cafe-xicara {
+  font-size: 5.2rem;
+  filter: drop-shadow(0 0 18px #c9883b);
+  animation: cafeBalanco 3s ease-in-out infinite;
+}
+@keyframes cafeBalanco {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(3deg); }
+}
+.cafe-vapor {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 6px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.7), transparent);
+  filter: blur(3px);
+  opacity: 0;
+  animation: vaporSubir 2.2s ease-in infinite;
+}
+.cafe-vapor:nth-child(2) { left: 38%; animation-delay: 0.5s; }
+.cafe-vapor:nth-child(3) { left: 62%; animation-delay: 1s; }
+@keyframes vaporSubir {
+  0%   { opacity: 0; transform: translate(-50%, 0) scaleX(1); }
+  20%  { opacity: 0.7; }
+  100% { opacity: 0; transform: translate(-50%, -70px) scaleX(1.8); }
+}
+.cafe-text span {
+  font-family: 'Fira Code', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #d99b4e;
+  text-shadow: 0 0 16px #c9883b, 0 0 32px #c9883b;
+  letter-spacing: 3px;
+}
+
+.monster-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 4px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── XP bar no painel ── */
+/* (estilos inline no JSX) */
+
+/* ── GitHub Feed ── */
+.github-feed {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border-neon);
+  border-radius: 8px;
+  padding: 12px;
+}
+.github-feed-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.github-feed-item:last-child { border-bottom: none; }
+.gh-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.gh-info { display: flex; flex-direction: column; gap: 2px; }
+.gh-label { font-size: 0.78rem; color: #ccc; }
+.gh-time  { font-size: 0.68rem; color: var(--primary); font-family: 'Fira Code', monospace; }
+
+/* ── Glitch na borda ao scroll ── */
+@keyframes sectionGlitchFlash {
+  0%   { box-shadow: inset 0 0 0 2px transparent; }
+  20%  { box-shadow: inset 0 0 0 2px #ff0055; filter: hue-rotate(15deg); }
+  40%  { box-shadow: inset 0 0 0 2px #00ff41; }
+  60%  { box-shadow: inset 0 0 0 2px var(--primary); filter: hue-rotate(-10deg); }
+  100% { box-shadow: inset 0 0 0 2px transparent; filter: none; }
+}
+body.section-glitch-flash::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99997;
+  animation: sectionGlitchFlash 0.3s ease forwards;
+  border: 3px solid transparent;
+}
+
+/* ── Modo Recrutador ── */
+body.recruiter-mode {
+  --primary: #0a66c2 !important;
+}
+body.recruiter-mode .project-card,
+body.recruiter-mode .certificate-mini-card {
+  border-color: rgba(10, 102, 194, 0.3) !important;
+}
+body.recruiter-mode .achievement-popup,
+body.recruiter-mode .cursor-trail-particle {
+  display: none !important;
+}
+
+/* ── Snake fullscreen canvas mobile ── */
+@media (max-width: 520px) {
+  .btn-voltar-topo { bottom: 80px; right: 16px; }
+  .toast-boasvindas { left: 12px; right: 12px; max-width: none; bottom: 12px; }
+  .energetico-lata { width: 90px; height: 150px; }
+  .energetico-raio { font-size: 1.8rem; }
+  .energetico-text span, .cafe-text span { font-size: 1.1rem; }
+  .status-bars-container { width: 230px; padding: 12px; }
+  .cafe-xicara { font-size: 4rem; }
 }
