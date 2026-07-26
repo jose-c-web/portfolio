@@ -735,6 +735,12 @@ export default function App() {
     ganharXP('mudar_cor');
   }, [desbloquearConquista, ganharXP]);
 
+  // ── callbacks estáveis para fechar os mini-jogos / easter eggs ──
+  // (evita recriar a função a cada render, o que reiniciava o jogo)
+  const fecharSnake      = useCallback(() => setSnakeAberto(false), []);
+  const fecharEnergetico = useCallback(() => setEnergeticoAtivo(false), []);
+  const fecharCafe       = useCallback(() => setCafeAtivo(false), []);
+
   // ── boot ─────────────────────────────────────────────────────
   useEffect(() => {
     const h = new Date().getHours();
@@ -1138,9 +1144,9 @@ export default function App() {
               </div>
             </div>
           )}
-          {snakeAberto && <SnakeGame onClose={() => setSnakeAberto(false)} />}
-          {energeticoAtivo && <EnergeticoEasterEgg onClose={() => setEnergeticoAtivo(false)} imagemLata={imagemMonster} />}
-          {cafeAtivo && <CafeEasterEgg onClose={() => setCafeAtivo(false)} />}
+          {snakeAberto && <SnakeGame onClose={fecharSnake} />}
+          {energeticoAtivo && <EnergeticoEasterEgg onClose={fecharEnergetico} imagemLata={imagemMonster} />}
+          {cafeAtivo && <CafeEasterEgg onClose={fecharCafe} />}
 
           {/* ── conquista popup ── */}
           {conquistaAtiva && (
