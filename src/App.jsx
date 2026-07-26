@@ -396,10 +396,10 @@ function SnakeGame({ onClose }) {
 // ─── Easter egg Energético (lata neon + status bars) ──────────
 // Componente Interno do Easter Egg do Energético (Atualizado)
 function EnergeticoEasterEgg({ onClose, imagemLata }) {
-  const STATUS_ENERGETICO = [
-    { label: 'Foco', value: '100%' },
-    { label: 'Energia', value: '100%' },
-    { label: 'Insônia', value: '85%' },
+  const STATUS_ENERGETICO_LOCAL = [
+    { label: 'Foco', valor: 100 },
+    { label: 'Energia', valor: 100 },
+    { label: 'Insônia', valor: 85 },
   ];
 
   useEffect(() => {
@@ -413,7 +413,7 @@ function EnergeticoEasterEgg({ onClose, imagemLata }) {
   }, [onClose]);
 
   return (
-    <div className="energetico-easter-egg" onClick={onClose, imagemLata}>
+    <div className="energetico-easter-egg" onClick={onClose}>
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Oswald:wght=700&display=swap');
@@ -466,7 +466,7 @@ function EnergeticoEasterEgg({ onClose, imagemLata }) {
             <small style={{ display: 'block' }}>⚡ +100% DE FOCO TURBINADO ⚡</small>
           </div>
           
-          <StatusBars itens={STATUS_ENERGETICO} />
+          <StatusBars itens={STATUS_ENERGETICO_LOCAL} />
           
           <small style={{ color: '#888', fontSize: '0.7rem', display: 'block', textAlign: 'center', marginTop: '5px' }}>
             Clique fora ou ESC para fechar
@@ -1067,9 +1067,13 @@ export default function App() {
       if (Math.abs(dx)>4||Math.abs(dy)>4) hasMoved.current = true;
       setBtnPos({ x: Math.max(10,Math.min(window.innerWidth-50,dragStartPos.current.x+dx)), y: Math.max(10,Math.min(window.innerHeight-50,dragStartPos.current.y+dy)) });
     };
+    const onUp = () => { isDragging.current = false; };
     window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', () => isDragging.current=false);
-    return () => window.removeEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
   }, [btnPos]);
 
   // ── visitas ──────────────────────────────────────────────────
@@ -1135,7 +1139,7 @@ export default function App() {
             </div>
           )}
           {snakeAberto && <SnakeGame onClose={() => setSnakeAberto(false)} />}
-          {energeticoAtivo && <EnergeticoEasterEgg onClose={() => setEnergeticoAtivo(false)} />}
+          {energeticoAtivo && <EnergeticoEasterEgg onClose={() => setEnergeticoAtivo(false)} imagemLata={imagemMonster} />}
           {cafeAtivo && <CafeEasterEgg onClose={() => setCafeAtivo(false)} />}
 
           {/* ── conquista popup ── */}
