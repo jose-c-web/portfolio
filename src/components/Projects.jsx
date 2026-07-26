@@ -1,6 +1,7 @@
 import imgGeTech from '../assets/IMG/GeTech.png';
 import imgFlixBox from '../assets/IMG/FlixBox.png';
 import imgAnaDoces from '../assets/IMG/Ana_Doces.png';
+import imgProjetoInterligado from '../assets/IMG/pr.png';
 
 import { useState } from "react";
 
@@ -38,7 +39,7 @@ export default function Projects() {
       title: "Projeto Interligado",
       description: "O Projeto Interligado foi um projeto que reuniu um grupo de 6 pessoas do SENAI na sala, e eu e esses integrantes fizemos este site com conexão e validação pelo firebase funcionando",
       tech: "HTML · CSS · JavaScript",
-      image: imgAnaDoces, // Altere para a imagem correta do projeto se tiver uma dedicada!
+      image: imgProjetoInterligado, // Altere para a imagem correta do projeto se tiver uma dedicada!
       link: "https://jose-c-web.github.io/projeto_interligado/"
     }
   ];
