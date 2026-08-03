@@ -787,6 +787,10 @@ const mudarCorFundo = (hex) => {
   const [corHexInput, setCorHexInput]     = useState('#4b80e2');
   const [corHexErro, setCorHexErro]       = useState(false);
 
+  // ── cor de fundo (mesmo sistema de roleta/hex da cor de destaque) ──
+  const [corFundoHexInput, setCorFundoHexInput] = useState(corFundo);
+  const [corFundoErro, setCorFundoErro]         = useState(false);
+
   // ── arrastar botão ───────────────────────────────────────────
   const [btnPos, setBtnPos]               = useState({ x: window.innerWidth - 60, y: window.innerHeight / 2 - 25 });
   const isDragging   = useRef(false);
@@ -1110,12 +1114,17 @@ const mudarCorFundo = (hex) => {
       setParticulasAtivas(false);
     } else {
       document.body.style.filter = '';
-      // restaura cor salva
+      // restaura a cor de destaque e a cor de fundo escolhidas pelo usuário
+      // (antes isso resetava --bg-dark pra '#050505' toda vez que a cor
+      // de destaque mudava, pois corHexInput estava nas dependências)
       if (hexValido(corHexInput)) mudarCorPrincipal(corHexInput);
-      document.documentElement.style.setProperty('--bg-dark', '#050505');
+      document.documentElement.style.setProperty('--bg-dark', corFundo);
       setParticulasAtivas(true);
     }
-  }, [lofiMode, corHexInput, mudarCorPrincipal]);
+  // corHexInput e corFundo são lidos aqui só quando o lofiMode alterna,
+  // não precisamos re-rodar o efeito quando eles mudam sozinhos
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lofiMode]);
 
   // ── Recruiter mode ────────────────────────────────────────────
   useEffect(() => {
@@ -1369,6 +1378,9 @@ const mudarCorFundo = (hex) => {
   const aoSelecionarCorPicker = (hex) => { setCorHexInput(hex); setCorHexErro(false); mudarCorPrincipal(hex); };
   const aoDigitarCorHex = (v) => { setCorHexInput(v); if(hexValido(v)){setCorHexErro(false);mudarCorPrincipal(v);}else{setCorHexErro(true);} };
 
+  const aoSelecionarCorFundoPicker = (hex) => { setCorFundoHexInput(hex); setCorFundoErro(false); mudarCorFundo(hex); };
+  const aoDigitarCorFundoHex = (v) => { setCorFundoHexInput(v); if(hexValido(v)){setCorFundoErro(false);mudarCorFundo(v);}else{setCorFundoErro(true);} };
+
   // ────────────────────────────────────────────────────────────
   // RENDER
   // ────────────────────────────────────────────────────────────
@@ -1458,7 +1470,7 @@ const mudarCorFundo = (hex) => {
       <button
         key={cor.hex}
         title={cor.nome}
-        onClick={() => mudarCorFundo(cor.hex)}
+        onClick={() => { setCorFundoHexInput(cor.hex); setCorFundoErro(false); mudarCorFundo(cor.hex); }}
         style={{
           width: '26px',
           height: '26px',
@@ -1472,6 +1484,24 @@ const mudarCorFundo = (hex) => {
       />
     ))}
   </div>
+
+  {/* roleta de cores + hex, mesmo sistema usado na Cor de Destaque */}
+  <div style={{ display:'flex', alignItems:'center', gap:'10px', marginTop:'10px' }}>
+    <input
+      type="color"
+      value={hexValido(corFundoHexInput) && corFundoHexInput.length===7 ? corFundoHexInput : '#050505'}
+      onChange={(e) => aoSelecionarCorFundoPicker(e.target.value)}
+      style={{ width:'42px', height:'42px', cursor:'pointer', background:'transparent', border:'1px solid var(--border-neon)', borderRadius:'8px' }}
+    />
+    <input
+      type="text"
+      value={corFundoHexInput}
+      onChange={(e) => aoDigitarCorFundoHex(e.target.value)}
+      maxLength={7}
+      style={{ width:'100%', padding:'10px', background:'#0d0d0d', color:'#fff', border:'1px solid #222', borderRadius:'8px', fontFamily:"'Fira Code',monospace" }}
+    />
+  </div>
+  {corFundoErro && <span style={{ color:'#ff4a4a', fontSize:'0.75rem' }}>{t.corHexInvalida}</span>}
 </div>
 
               <div style={{ textAlign:'center' }}><Clock /></div>
