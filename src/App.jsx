@@ -6,6 +6,7 @@ import Certificados from './components/Certificados';
 import Contact from './components/Contact'; 
 import Footer from './components/Footer';
 import Clock from './components/Clock';
+import './components/vlibras.js'
 import './App.css';
 
 import track1 from './assets/Musics/perdas.mp3';
