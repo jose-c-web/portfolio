@@ -1517,7 +1517,7 @@ export default function App() {
                       onClick={() => instalarFonteGoogle(buscaFonteInput)}
                       disabled={carregandoFonte || !buscaFonteInput.trim()}
                       style={{ ...styles.fontBtn, flex:'0 0 auto', padding:'8px 12px', opacity:carregandoFonte?0.6:1, border:'1px solid var(--primary)', color:'var(--primary)' }}>
-                      {carregandoFonte ? '⏳' : '⚡'}
+                      {carregandoFonte ? '⏳' : '🔍'}
                     </button>
 
                     {sugestoesFontes.length > 0 && (
