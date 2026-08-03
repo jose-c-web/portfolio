@@ -18,3 +18,7 @@ If you are developing a production application, we recommend using TypeScript wi
 # Comando a rodar
 
 "npm install"
+
+# Importante
+
+para fazer este projeto utilizei de inteligência artificial para executar as ideias que o time pensou, dito isto este portfólio se trata além de demonstrar as ideias que tivemos e gostaríamos de executar no site.
