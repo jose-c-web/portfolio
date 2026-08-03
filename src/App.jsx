@@ -35,6 +35,7 @@ const LISTA_CONQUISTAS = [
   { id: "recruiter",  titulo: "Modo RH",               desc: "Ativou o modo recrutador com /recruiter.",        icone: "📋" },
   { id: "lofi",       titulo: "Lo-Fi Vibes",           desc: "Ativou o modo lo-fi com /lofi.",                  icone: "🎵" },
   { id: "xp1000",     titulo: "Level Up!",             desc: "Acumulou 1000 XP no sistema.",                    icone: "⭐" },
+  { id: "fonte_custom", titulo: "Tipógrafo Cyber",     desc: "Instalou uma fonte personalizada do Google Fonts.", icone: "🔤" },
 ];
 
 const CORES_PRE_PRONTAS = [
@@ -71,6 +72,15 @@ const traducoes = {
     limparConquistas: "Resetar Sistema 🔄",
     xpLabel: "XP do Sistema",
     tempoLabel: "Tempo na página",
+    buscarFonteLabel: "Buscar Fonte no Google Fonts",
+    buscarFontePlaceholder: "Ex: Orbitron, Bebas Neue...",
+    buscarFonteBotao: "Instalar Fonte",
+    buscarFonteCarregando: "Instalando fonte...",
+    buscarFonteErro: "Fonte não encontrada no Google Fonts.",
+    buscarFonteSucesso: "Fonte instalada com sucesso!",
+    apiKeyLabel: "Chave da API do Google Fonts (opcional, ativa busca com sugestões)",
+    apiKeyPlaceholder: "Cole sua chave aqui...",
+    minhasFontes: "Minhas Fontes Instaladas",
   },
   en: {
     sistemaConectado: "System Connected",
@@ -97,6 +107,15 @@ const traducoes = {
     limparConquistas: "Reset System 🔄",
     xpLabel: "System XP",
     tempoLabel: "Time on page",
+    buscarFonteLabel: "Search Google Fonts",
+    buscarFontePlaceholder: "E.g: Orbitron, Bebas Neue...",
+    buscarFonteBotao: "Install Font",
+    buscarFonteCarregando: "Installing font...",
+    buscarFonteErro: "Font not found on Google Fonts.",
+    buscarFonteSucesso: "Font installed successfully!",
+    apiKeyLabel: "Google Fonts API Key (optional, enables search suggestions)",
+    apiKeyPlaceholder: "Paste your key here...",
+    minhasFontes: "My Installed Fonts",
   }
 };
 
@@ -653,6 +672,20 @@ export default function App() {
   const [nivelBlur, setNivelBlur]         = useState(8);
   const [fonteSelecionada, setFonteSelecionada] = useState("'Poppins', sans-serif");
   const [tamanhoFonte, setTamanhoFonte]   = useState(16);
+
+  // ── Google Fonts (busca/instalação dinâmica) ──
+  const [fontesCustom, setFontesCustom] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('portfolio_fontes_custom') || '[]'); } catch { return []; }
+  });
+  const [buscaFonteInput, setBuscaFonteInput]     = useState('');
+  const [carregandoFonte, setCarregandoFonte]     = useState(false);
+  const [erroFonte, setErroFonte]                 = useState('');
+  const [sucessoFonte, setSucessoFonte]           = useState(false);
+  const [googleApiKey, setGoogleApiKey]           = useState(() => {
+    try { return localStorage.getItem('portfolio_google_fonts_key') || ''; } catch { return ''; }
+  });
+  const [listaFontesGoogle, setListaFontesGoogle] = useState([]); // catálogo completo (só se houver API key)
+  const [sugestoesFontes, setSugestoesFontes]     = useState([]);
   const [particulasAtivas, setParticulasAtivas] = useState(true);
   const [cursorTrailAtivo, setCursorTrailAtivo] = useState(false);
   const [contadorVisitas, setContadorVisitas]   = useState(1337);
@@ -734,6 +767,149 @@ export default function App() {
     desbloquearConquista("cor_custom","Estilista Cyber: Mudou as cores!","🎨");
     ganharXP('mudar_cor');
   }, [desbloquearConquista, ganharXP]);
+
+  // ── Google Fonts: instala qualquer fonte pelo nome (sem precisar de API key) ──
+  // IMPORTANTE: o endpoint fonts.googleapis.com/css2 não envia cabeçalhos CORS
+  // (Access-Control-Allow-Origin), então usar fetch() para "validar" a URL
+  // sempre falha, mesmo para fontes que existem — por isso a versão anterior
+  // dizia "não encontrada" pra tudo. A solução é injetar o <link> direto
+  // (isso não precisa de CORS) e depois checar via document.fonts se a
+  // fonte realmente registrou @font-face no documento.
+  //
+  // O Google Fonts também é sensível a maiúsculas/minúsculas no nome da
+  // família (ex: "BJCree", "JetBrains Mono" têm letras maiúsculas no meio
+  // da palavra). Por isso tentamos primeiro EXATAMENTE o que o usuário
+  // digitou (preserva casos como "BJCree" se digitado certo) e só depois,
+  // como fallback, uma versão "Title Case" (ajuda com "poppins" → "Poppins").
+  const paraTituloFonte = (nome) =>
+    nome.trim().split(/\s+/).filter(Boolean)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+
+  // tenta injetar+validar UM nome de fonte específico; retorna true/false
+  const tentarCarregarFonte = useCallback(async (nomeFonte) => {
+    const familia = nomeFonte.replace(/\s+/g, '+');
+    const cssUrl = `https://fonts.googleapis.com/css2?family=${familia}:wght@400;600;700&display=swap`;
+    const linkId = `google-font-${familia.toLowerCase()}`;
+
+    let link = document.getElementById(linkId);
+    const linkJaExistia = !!link;
+    if (!link) {
+      link = document.createElement('link');
+      link.id = linkId;
+      link.rel = 'stylesheet';
+      link.href = cssUrl;
+      document.head.appendChild(link);
+    }
+
+    if (!linkJaExistia) {
+      await new Promise((resolve) => {
+        link.onload = resolve;
+        link.onerror = resolve; // resolve mesmo assim; quem decide é o document.fonts abaixo
+        setTimeout(resolve, 2500); // rede lenta não trava o app
+      });
+    }
+
+    let encontrada = true;
+    if (document.fonts && document.fonts.load) {
+      const carregadas = await document.fonts.load(`16px "${nomeFonte}"`);
+      await document.fonts.ready;
+      encontrada = carregadas && carregadas.length > 0;
+    }
+
+    if (!encontrada && !linkJaExistia) link.remove();
+    return encontrada;
+  }, []);
+
+  const instalarFonteGoogle = useCallback(async (nomeFonteRaw) => {
+    const entrada = (nomeFonteRaw || '').trim();
+    if (!entrada) return;
+
+    setCarregandoFonte(true);
+    setErroFonte('');
+    setSucessoFonte(false);
+
+    try {
+      // candidatos de capitalização, em ordem: exatamente como digitado
+      // primeiro, depois Title Case como fallback (sem repetir se iguais)
+      const candidatos = [entrada, paraTituloFonte(entrada)]
+        .filter((v, i, arr) => v && arr.indexOf(v) === i);
+
+      let nomeEncontrado = null;
+      for (const candidato of candidatos) {
+        const ok = await tentarCarregarFonte(candidato);
+        if (ok) { nomeEncontrado = candidato; break; }
+      }
+
+      if (!nomeEncontrado) throw new Error('font-not-found');
+
+      const nomeFonte = nomeEncontrado;
+      const valorFonte = `'${nomeFonte}', sans-serif`;
+
+      setFontesCustom(prev => {
+        if (prev.some(f => f.valor === valorFonte)) return prev;
+        const nova = [...prev, { nome: nomeFonte, valor: valorFonte }];
+        try { localStorage.setItem('portfolio_fontes_custom', JSON.stringify(nova)); } catch {}
+        return nova;
+      });
+
+      setFonteSelecionada(valorFonte);
+      setSucessoFonte(true);
+      setBuscaFonteInput('');
+      setSugestoesFontes([]);
+      desbloquearConquista("fonte_custom", "Tipógrafo Cyber: Instalou uma fonte do Google Fonts!", "🔤");
+      ganharXP('mudar_cor');
+      setTimeout(() => setSucessoFonte(false), 3000);
+    } catch (e) {
+      setErroFonte(idioma === 'pt' ? 'Fonte não encontrada no Google Fonts.' : 'Font not found on Google Fonts.');
+    } finally {
+      setCarregandoFonte(false);
+    }
+  }, [desbloquearConquista, ganharXP, idioma]);
+
+  const removerFonteCustom = useCallback((valorFonte) => {
+    setFontesCustom(prev => {
+      const nova = prev.filter(f => f.valor !== valorFonte);
+      try { localStorage.setItem('portfolio_fontes_custom', JSON.stringify(nova)); } catch {}
+      return nova;
+    });
+    if (fonteSelecionada === valorFonte) setFonteSelecionada("'Poppins', sans-serif");
+  }, [fonteSelecionada]);
+
+  // ── Google Fonts: catálogo completo (opcional, precisa de API key gratuita) ──
+  // Sem a chave, a instalação por nome continua funcionando normalmente;
+  // a chave só liga o autocomplete/sugestões enquanto o usuário digita.
+  useEffect(() => {
+    if (!googleApiKey) { setListaFontesGoogle([]); return; }
+    let cancelado = false;
+    (async () => {
+      try {
+        const resp = await fetch(`https://www.googleapis.com/webfonts/v1/webfonts?key=${googleApiKey}&sort=popularity`);
+        if (!resp.ok) throw new Error('api-key-invalida');
+        const data = await resp.json();
+        if (!cancelado) setListaFontesGoogle((data.items || []).map(f => f.family));
+      } catch {
+        if (!cancelado) setListaFontesGoogle([]);
+      }
+    })();
+    return () => { cancelado = true; };
+  }, [googleApiKey]);
+
+  useEffect(() => {
+    const termo = buscaFonteInput.trim().toLowerCase();
+    if (!termo || listaFontesGoogle.length === 0) { setSugestoesFontes([]); return; }
+    setSugestoesFontes(
+      listaFontesGoogle.filter(f => f.toLowerCase().includes(termo)).slice(0, 6)
+    );
+  }, [buscaFonteInput, listaFontesGoogle]);
+
+  const salvarApiKeyGoogleFonts = useCallback((valor) => {
+    setGoogleApiKey(valor);
+    try {
+      if (valor) localStorage.setItem('portfolio_google_fonts_key', valor);
+      else localStorage.removeItem('portfolio_google_fonts_key');
+    } catch {}
+  }, []);
 
   // ── callbacks estáveis para fechar os mini-jogos / easter eggs ──
   // (evita recriar a função a cada render, o que reiniciava o jogo)
@@ -1302,6 +1478,76 @@ export default function App() {
                       {f.nome}
                     </button>
                   ))}
+                </div>
+
+                {fontesCustom.length > 0 && (
+                  <div style={{ marginTop:'10px' }}>
+                    <span style={{ fontSize:'0.75rem', color:'#888' }}>{t.minhasFontes}</span>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px', marginTop:'6px' }}>
+                      {fontesCustom.map(f => (
+                        <div key={f.valor} style={{ position:'relative' }}>
+                          <button onClick={() => setFonteSelecionada(f.valor)}
+                            style={{ ...styles.fontBtn, fontFamily:f.valor, fontSize:'0.75rem', width:'100%', border:fonteSelecionada===f.valor?'1px solid var(--primary)':'1px solid #222' }}>
+                            {f.nome}
+                          </button>
+                          <span onClick={() => removerFonteCustom(f.valor)}
+                            title={idioma==='pt' ? 'Remover fonte' : 'Remove font'}
+                            style={{ position:'absolute', top:'-6px', right:'-6px', background:'#2a0808', border:'1px solid #ff4a4a', color:'#ff8888', borderRadius:'50%', width:'16px', height:'16px', fontSize:'0.65rem', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+                            ×
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* busca/instalação de fontes do Google Fonts */}
+                <div style={{ marginTop:'14px' }}>
+                  <span style={{ fontSize:'0.8rem', color:'#a9a9a9', display:'block', marginBottom:'6px' }}>{t.buscarFonteLabel}</span>
+                  <div style={{ display:'flex', gap:'6px', position:'relative' }}>
+                    <input
+                      type="text"
+                      value={buscaFonteInput}
+                      onChange={(e) => { setBuscaFonteInput(e.target.value); setErroFonte(''); }}
+                      onKeyDown={(e) => { if (e.key === 'Enter') instalarFonteGoogle(buscaFonteInput); }}
+                      placeholder={t.buscarFontePlaceholder}
+                      style={{ flex:1, padding:'8px 10px', background:'#0d0d0d', color:'#fff', border:'1px solid #222', borderRadius:'6px', fontSize:'0.8rem' }}
+                    />
+                    <button
+                      onClick={() => instalarFonteGoogle(buscaFonteInput)}
+                      disabled={carregandoFonte || !buscaFonteInput.trim()}
+                      style={{ ...styles.fontBtn, flex:'0 0 auto', padding:'8px 12px', opacity:carregandoFonte?0.6:1, border:'1px solid var(--primary)', color:'var(--primary)' }}>
+                      {carregandoFonte ? '⏳' : '⚡'}
+                    </button>
+
+                    {sugestoesFontes.length > 0 && (
+                      <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:'4px', background:'#0d0d0d', border:'1px solid #222', borderRadius:'6px', zIndex:5, overflow:'hidden' }}>
+                        {sugestoesFontes.map(nome => (
+                          <div key={nome} onClick={() => instalarFonteGoogle(nome)}
+                            style={{ padding:'8px 10px', fontSize:'0.8rem', cursor:'pointer', borderBottom:'1px solid #1a1a1a' }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(var(--primary-rgb),0.15)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                            {nome}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {carregandoFonte && <span style={{ fontSize:'0.7rem', color:'#888', display:'block', marginTop:'4px' }}>{t.buscarFonteCarregando}</span>}
+                  {erroFonte && <span style={{ fontSize:'0.7rem', color:'#ff4a4a', display:'block', marginTop:'4px' }}>{erroFonte}</span>}
+                  {sucessoFonte && <span style={{ fontSize:'0.7rem', color:'#4ade80', display:'block', marginTop:'4px' }}>{t.buscarFonteSucesso}</span>}
+
+                  <details style={{ marginTop:'10px' }}>
+                    <summary style={{ fontSize:'0.7rem', color:'#666', cursor:'pointer' }}>{t.apiKeyLabel}</summary>
+                    <input
+                      type="text"
+                      value={googleApiKey}
+                      onChange={(e) => salvarApiKeyGoogleFonts(e.target.value)}
+                      placeholder={t.apiKeyPlaceholder}
+                      style={{ width:'100%', marginTop:'6px', padding:'8px 10px', background:'#0d0d0d', color:'#fff', border:'1px solid #222', borderRadius:'6px', fontSize:'0.75rem' }}
+                    />
+                  </details>
                 </div>
               </div>
 
