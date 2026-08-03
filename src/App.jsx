@@ -56,6 +56,13 @@ const CORES_FUNDO_PRE_PRONTAS = [
   { nome: "Dracula Background", hex: "#282a36" }
 ];
 
+const CORES_TEXTO_PRE_PRONTAS = [
+  { nome: "Branco",       hex: "#ffffff" },
+  { nome: "Preto",        hex: "#111111" },
+  { nome: "Cinza Claro",  hex: "#e5e5e5" },
+  { nome: "Cinza Escuro", hex: "#333333" }
+];
+
 const traducoes = {
   pt: {
     sistemaConectado: "Sistema Connected",
@@ -98,6 +105,10 @@ const traducoes = {
     daltonismoTritanopia: "Tritanopia",
     daltonismoAcromatopsia: "Acromatopsia (P&B)",
     daltonismoCredito: "💡 Ideia sugerida por João Victor Alves",
+    corTexto: "Cor do Texto",
+    corTextoAutoBadge: "🌙 Dark-mode automático ativado (cor clara detectada)",
+    corTextoAutoBotao: "Usar automático",
+    corTextoManualBotao: "Manual",
   },
   en: {
     sistemaConectado: "System Connected",
@@ -140,6 +151,10 @@ const traducoes = {
     daltonismoTritanopia: "Tritanopia",
     daltonismoAcromatopsia: "Achromatopsia (B&W)",
     daltonismoCredito: "💡 Idea suggested by João Victor Alves",
+    corTexto: "Text Color",
+    corTextoAutoBadge: "🌙 Automatic dark-mode enabled (light color detected)",
+    corTextoAutoBotao: "Use automatic",
+    corTextoManualBotao: "Manual",
   }
 };
 
@@ -190,6 +205,32 @@ function hexParaRgbString(hex) {
 
 function hexValido(hex) {
   return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(hex);
+}
+
+// Expande #abc pra #aabbcc, pra manter os cálculos abaixo sempre em 6 dígitos
+function normalizarHex(hex) {
+  const limpo = hex.replace('#', '');
+  if (limpo.length === 3) {
+    return '#' + limpo.split('').map(c => c + c).join('');
+  }
+  return '#' + limpo;
+}
+
+// Luminância relativa (fórmula WCAG) — usada pra decidir se uma cor é "clara" ou "escura"
+function luminanciaRelativa(hex) {
+  if (!hexValido(hex)) return 1; // assume claro se o valor ainda estiver inválido/incompleto
+  const limpo = normalizarHex(hex).replace('#', '');
+  const [r, g, b] = [0, 2, 4].map(i => parseInt(limpo.substring(i, i + 2), 16) / 255);
+  const canal = (c) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+}
+
+// Mistura duas cores hex numa proporção (peso 0 = 100% hex1, peso 1 = 100% hex2)
+function misturarHex(hex1, hex2, peso) {
+  const c1 = normalizarHex(hex1).replace('#', '').match(/.{2}/g).map(v => parseInt(v, 16));
+  const c2 = normalizarHex(hex2).replace('#', '').match(/.{2}/g).map(v => parseInt(v, 16));
+  const mix = c1.map((v, i) => Math.round(v * (1 - peso) + c2[i] * peso));
+  return '#' + mix.map(v => v.toString(16).padStart(2, '0')).join('');
 }
 
 function formatarTempo(segundos) {
@@ -791,6 +832,19 @@ const mudarCorFundo = (hex) => {
   const [corFundoHexInput, setCorFundoHexInput] = useState(corFundo);
   const [corFundoErro, setCorFundoErro]         = useState(false);
 
+  // ── cor do texto (resolve letras que ficavam brancas em fundos claros) ──
+  // textoAuto: quando ativo, a cor do texto é recalculada sozinha (dark-mode
+  // automático) toda vez que o fundo mudar. Quando o usuário escolhe uma cor
+  // manualmente, textoAuto desliga e a escolha dele passa a valer sempre.
+  const [textoAuto, setTextoAuto]         = useState(() => {
+    try { return localStorage.getItem('portfolio_texto_auto') !== 'false'; } catch { return true; }
+  });
+  const [corTextoInput, setCorTextoInput] = useState(() => {
+    try { return localStorage.getItem('portfolio_cor_texto') || '#ffffff'; } catch { return '#ffffff'; }
+  });
+  const [corTextoErro, setCorTextoErro]   = useState(false);
+  const [modoTextoEscuro, setModoTextoEscuro] = useState(false);
+
   // ── arrastar botão ───────────────────────────────────────────
   const [btnPos, setBtnPos]               = useState({ x: window.innerWidth - 60, y: window.innerHeight / 2 - 25 });
   const isDragging   = useRef(false);
@@ -839,6 +893,58 @@ const mudarCorFundo = (hex) => {
     desbloquearConquista("cor_custom","Estilista Cyber: Mudou as cores!","🎨");
     ganharXP('mudar_cor');
   }, [desbloquearConquista, ganharXP]);
+
+  // Aplica a cor principal do texto (--white) e deriva a cor secundária
+  // (--text-gray) misturando com preto ou branco, dependendo de qual lado
+  // a cor principal está (clara ou escura), pra manter contraste com ela.
+  const aplicarCorTexto = useCallback((hexPrincipal) => {
+    document.documentElement.style.setProperty('--white', hexPrincipal);
+    const ehClaro = luminanciaRelativa(hexPrincipal) > 0.5;
+    const secundaria = ehClaro
+      ? misturarHex(hexPrincipal, '#000000', 0.45)
+      : misturarHex(hexPrincipal, '#ffffff', 0.35);
+    document.documentElement.style.setProperty('--text-gray', secundaria);
+    try { localStorage.setItem('portfolio_cor_texto', hexPrincipal); } catch {}
+  }, []);
+
+  // Modo automático: sempre que o fundo mudar, decide se o texto deve virar
+  // escuro (fundo claro detectado) ou claro (fundo escuro, o padrão).
+  useEffect(() => {
+    if (!textoAuto) return; // usuário assumiu o controle manual da cor do texto
+    const fundoEhClaro = luminanciaRelativa(corFundo) > 0.55;
+    const corAutomatica = fundoEhClaro ? '#111111' : '#ffffff';
+    aplicarCorTexto(corAutomatica);
+    setCorTextoInput(corAutomatica);
+    setModoTextoEscuro(fundoEhClaro);
+  }, [corFundo, textoAuto, aplicarCorTexto]);
+
+  useEffect(() => {
+    try { localStorage.setItem('portfolio_texto_auto', String(textoAuto)); } catch {}
+  }, [textoAuto]);
+
+  // Ao montar, se o usuário já tinha escolhido uma cor manual antes (modo
+  // automático desligado), reaplica ela — senão o efeito automático acima
+  // (que só roda quando textoAuto é true) nunca chegaria a setar a CSS var.
+  useEffect(() => {
+    if (!textoAuto && hexValido(corTextoInput)) {
+      aplicarCorTexto(corTextoInput);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const aoSelecionarCorTextoPicker = (hex) => {
+    setTextoAuto(false);
+    setCorTextoInput(hex);
+    setCorTextoErro(false);
+    aplicarCorTexto(hex);
+  };
+  const aoDigitarCorTextoHex = (v) => {
+    setTextoAuto(false);
+    setCorTextoInput(v);
+    if (hexValido(v)) { setCorTextoErro(false); aplicarCorTexto(v); }
+    else { setCorTextoErro(true); }
+  };
+  const ativarCorTextoAutomatica = () => setTextoAuto(true);
 
   // ── Google Fonts: instala qualquer fonte pelo nome (sem precisar de API key) ──
   // IMPORTANTE: o endpoint fonts.googleapis.com/css2 não envia cabeçalhos CORS
@@ -1601,6 +1707,52 @@ const mudarCorFundo = (hex) => {
                   </div>
                 )}
                 {corHexErro && <span style={{ color:'#ff4a4a', fontSize:'0.75rem' }}>{t.corHexInvalida}</span>}
+              </div>
+
+              <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
+
+              {/* cor do texto — corrige letras que não mudavam e travavam brancas em fundos claros */}
+              <div>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <h4 style={{ margin:0 }}>{t.corTexto}</h4>
+                  {!textoAuto && (
+                    <button onClick={ativarCorTextoAutomatica} style={{ ...styles.fontBtn, flex:'0 0 auto', padding:'4px 8px', fontSize:'0.7rem', border:'1px solid var(--border-neon)' }}>
+                      {t.corTextoAutoBotao}
+                    </button>
+                  )}
+                </div>
+
+                {textoAuto && modoTextoEscuro && (
+                  <div style={{ marginTop:'8px', padding:'8px 10px', background:'rgba(0,0,0,0.3)', border:'1px solid var(--border-neon)', borderRadius:'8px', fontSize:'0.75rem', textAlign:'center' }}>
+                    {t.corTextoAutoBadge}
+                  </div>
+                )}
+
+                <div style={{ display:'flex', gap:'8px', flexWrap:'wrap', marginTop:'10px' }}>
+                  {CORES_TEXTO_PRE_PRONTAS.map(c => (
+                    <button key={c.hex} onClick={() => aoSelecionarCorTextoPicker(c.hex)}
+                      style={{ width:'28px', height:'28px', borderRadius:'50%', background:c.hex, border:!textoAuto && corTextoInput.toLowerCase()===c.hex.toLowerCase()?'2px solid var(--primary)':'1px solid rgba(255,255,255,0.3)', cursor:'pointer' }}
+                      title={c.nome}
+                    />
+                  ))}
+                </div>
+
+                <div style={{ display:'flex', alignItems:'center', gap:'10px', marginTop:'10px' }}>
+                  <input
+                    type="color"
+                    value={hexValido(corTextoInput) && corTextoInput.length===7 ? corTextoInput : '#ffffff'}
+                    onChange={(e) => aoSelecionarCorTextoPicker(e.target.value)}
+                    style={{ width:'42px', height:'42px', cursor:'pointer', background:'transparent', border:'1px solid var(--border-neon)', borderRadius:'8px' }}
+                  />
+                  <input
+                    type="text"
+                    value={corTextoInput}
+                    onChange={(e) => aoDigitarCorTextoHex(e.target.value)}
+                    maxLength={7}
+                    style={{ width:'100%', padding:'10px', background:'#0d0d0d', color:'#fff', border:'1px solid #222', borderRadius:'8px', fontFamily:"'Fira Code',monospace" }}
+                  />
+                </div>
+                {corTextoErro && <span style={{ color:'#ff4a4a', fontSize:'0.75rem' }}>{t.corHexInvalida}</span>}
               </div>
 
               <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
