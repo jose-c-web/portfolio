@@ -47,6 +47,15 @@ const CORES_PRE_PRONTAS = [
   { nome: "Sunset Orange",  hex: "#ff5722" }
 ];
 
+const CORES_FUNDO_PRE_PRONTAS = [
+  { nome: "Preto Absoluto",  hex: "#050505" },
+  { nome: "Dark Gray",       hex: "#121212" },
+  { nome: "Deep Navy",       hex: "#0a0f1d" },
+  { nome: "Cyber Purple",    hex: "#0d0714" },
+  { nome: "Matrix Night",    hex: "#020d04" },
+  { nome: "Dracula Background", hex: "#282a36" }
+];
+
 const traducoes = {
   pt: {
     sistemaConectado: "Sistema Connected",
@@ -704,6 +713,24 @@ export default function App() {
   const [tempoSegundos, setTempoSegundos] = useState(0);
 
   // ── painel ──
+  // Estado inicial da cor de fundo (resgata do localStorage se existir)
+const [corFundo, setCorFundo] = useState(() => {
+  return localStorage.getItem('portfolio_cor_fundo') || '#050505';
+});
+
+// Aplica a cor na variável CSS --bg-dark e salva no localStorage
+useEffect(() => {
+  document.documentElement.style.setProperty('--bg-dark', corFundo);
+  try {
+    localStorage.setItem('portfolio_cor_fundo', corFundo);
+  } catch (e) {
+    console.warn("Erro ao salvar a cor de fundo:", e);
+  }
+}, [corFundo]);
+
+const mudarCorFundo = (hex) => {
+  setCorFundo(hex);
+};
   const [menuAberto, setMenuAberto]       = useState(false);
   const [lanternaAtiva, setLanternaAtiva] = useState(true);
   const [animacoesAtivas, setAnimacoesAtivas] = useState(true);
@@ -1420,6 +1447,32 @@ export default function App() {
           {/* ── painel lateral ── */}
           <div className={`GerenciadorCores ${menuAberto?"aberto":""}`}>
             <div className="conteudo-cores" style={{ display:'flex', flexDirection:'column', gap:'15px', maxHeight:'85vh', overflowY:'auto' }}>
+
+              {/* Seletor de Cor de Fundo */}
+<div style={{ background:'rgba(0,0,0,0.4)', padding:'10px', borderRadius:'8px', border:'1px solid var(--border-neon)' }}>
+  <span style={{ fontSize:'0.7rem', color:'var(--text-gray)', letterSpacing:'1px', textTransform:'uppercase', display:'block', marginBottom:'8px', textAlign:'center' }}>
+    Cor de Fundo
+  </span>
+  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+    {CORES_FUNDO_PRE_PRONTAS.map((cor) => (
+      <button
+        key={cor.hex}
+        title={cor.nome}
+        onClick={() => mudarCorFundo(cor.hex)}
+        style={{
+          width: '26px',
+          height: '26px',
+          borderRadius: '50%',
+          backgroundColor: cor.hex,
+          border: corFundo === cor.hex ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.2)',
+          boxShadow: corFundo === cor.hex ? '0 0 8px var(--primary)' : 'none',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease'
+        }}
+      />
+    ))}
+  </div>
+</div>
 
               <div style={{ textAlign:'center' }}><Clock /></div>
 
