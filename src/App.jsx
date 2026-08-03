@@ -6,7 +6,6 @@ import Certificados from './components/Certificados';
 import Contact from './components/Contact'; 
 import Footer from './components/Footer';
 import Clock from './components/Clock';
-import VLibras from "./components/VLibras";
 import './App.css';
 
 import track1 from './assets/Musics/perdas.mp3';
@@ -1405,7 +1404,6 @@ export default function App() {
           <Certificados />
           <Contact />
           <Footer />
-          <VLibras />
 
           {/* ── botão flutuante ── */}
           <button

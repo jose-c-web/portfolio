@@ -1754,31 +1754,17 @@ body.recruiter-mode .cursor-trail-particle {
   .cafe-xicara { font-size: 4rem; }
 }
 
-/* --- Garantia de Estilos do VLibras --- */
-/* Posicionado no canto inferior esquerdo para não conflitar com o botão
-   de configurações (engrenagem), que fica na direita/centro da tela. */
-div[vw].enabled {
-  position: fixed !important;
-  top: auto !important;
-  bottom: 20px !important;
-  left: 20px !important;
-  right: auto !important;
-  transform: none !important;
-  z-index: 2147483647 !important;
-  width: auto !important;  /* Deixa a largura automática */
-  height: auto !important; /* Deixa a altura automática */
+/* Fix de renderização e posição para o botão do VLibras */
+[vw].enabled {
+  display: block !important;
 }
 
-div[vw] [vw-access-button] {
-  display: block !important;
-  cursor: pointer !important;
+[vw-access-button] {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 2147483647 !important;
   width: 40px !important;
   height: 40px !important;
-  border-radius: 8px !important;
-}
-
-/* Força as imagens e elementos gerados pelo script a não serem escondidos */
-div[vw] * {
-  max-width: none !important;
-  box-sizing: content-box !important;
+  cursor: pointer !important;
 }
