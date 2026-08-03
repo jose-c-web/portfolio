@@ -6,6 +6,7 @@ import Certificados from './components/Certificados';
 import Contact from './components/Contact'; 
 import Footer from './components/Footer';
 import Clock from './components/Clock';
+import VLibras from "./components/VLibras";
 import './App.css';
 
 import track1 from './assets/Musics/perdas.mp3';
@@ -81,6 +82,13 @@ const traducoes = {
     apiKeyLabel: "Chave da API do Google Fonts (opcional, ativa busca com sugestões)",
     apiKeyPlaceholder: "Cole sua chave aqui...",
     minhasFontes: "Minhas Fontes Instaladas",
+    daltonismoLabel: "Modo Daltonismo",
+    daltonismoNenhum: "Desativado",
+    daltonismoProtanopia: "Protanopia",
+    daltonismoDeuteranopia: "Deuteranopia",
+    daltonismoTritanopia: "Tritanopia",
+    daltonismoAcromatopsia: "Acromatopsia (P&B)",
+    daltonismoCredito: "💡 Ideia sugerida por João Victor Alves",
   },
   en: {
     sistemaConectado: "System Connected",
@@ -116,6 +124,13 @@ const traducoes = {
     apiKeyLabel: "Google Fonts API Key (optional, enables search suggestions)",
     apiKeyPlaceholder: "Paste your key here...",
     minhasFontes: "My Installed Fonts",
+    daltonismoLabel: "Colorblind Mode",
+    daltonismoNenhum: "Off",
+    daltonismoProtanopia: "Protanopia",
+    daltonismoDeuteranopia: "Deuteranopia",
+    daltonismoTritanopia: "Tritanopia",
+    daltonismoAcromatopsia: "Achromatopsia (B&W)",
+    daltonismoCredito: "💡 Idea suggested by João Victor Alves",
   }
 };
 
@@ -262,6 +277,29 @@ function ParticulasFundo() {
     return () => { cancelAnimationFrame(anim); window.removeEventListener('resize', onResize); };
   }, []);
   return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', zIndex:1, pointerEvents:'none' }} />;
+}
+
+// ─── Filtros SVG do Modo Daltonismo ────────────────────────────
+// Renderizados uma única vez e ocultos; são acionados via CSS `filter: url(#id)`.
+function FiltrosDaltonismo() {
+  return (
+    <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+      <defs>
+        <filter id="filtro-protanopia">
+          <feColorMatrix type="matrix" values="0.567,0.433,0,0,0  0.558,0.442,0,0,0  0,0.242,0.758,0,0  0,0,0,1,0" />
+        </filter>
+        <filter id="filtro-deuteranopia">
+          <feColorMatrix type="matrix" values="0.625,0.375,0,0,0  0.7,0.3,0,0,0  0,0.3,0.7,0,0  0,0,0,1,0" />
+        </filter>
+        <filter id="filtro-tritanopia">
+          <feColorMatrix type="matrix" values="0.95,0.05,0,0,0  0,0.433,0.567,0,0  0,0.475,0.525,0,0  0,0,0,1,0" />
+        </filter>
+        <filter id="filtro-acromatopsia">
+          <feColorMatrix type="matrix" values="0.299,0.587,0.114,0,0  0.299,0.587,0.114,0,0  0.299,0.587,0.114,0,0  0,0,0,1,0" />
+        </filter>
+      </defs>
+    </svg>
+  );
 }
 
 // ─── Rastro de partículas do cursor ───────────────────────────
@@ -714,6 +752,9 @@ export default function App() {
   const [cafeAtivo, setCafeAtivo]         = useState(false);
   const [konamiSeq, setKonamiSeq]         = useState([]);
   const [recruiterMode, setRecruiterMode] = useState(false);
+  const [modoDaltonismo, setModoDaltonismo] = useState(() => {
+    try { return localStorage.getItem('portfolio_daltonismo') || 'nenhum'; } catch { return 'nenhum'; }
+  });
 
   // ── cor ──
   const [corHexInput, setCorHexInput]     = useState('#4b80e2');
@@ -1005,6 +1046,7 @@ export default function App() {
     } catch {}
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  
 
   useEffect(() => {
     try {
@@ -1285,6 +1327,17 @@ export default function App() {
   useEffect(() => { document.documentElement.style.setProperty('--font-family', fonteSelecionada); }, [fonteSelecionada]);
   useEffect(() => { document.documentElement.style.setProperty('--font-size-base', `${tamanhoFonte}px`); document.documentElement.style.fontSize = `${tamanhoFonte}px`; }, [tamanhoFonte]);
   useEffect(() => { document.body.classList.toggle('cyber-glitch-active', glitchAtivo); }, [glitchAtivo]);
+  useEffect(() => {
+    const mapaFiltros = {
+      nenhum: 'none',
+      protanopia: 'url(#filtro-protanopia)',
+      deuteranopia: 'url(#filtro-deuteranopia)',
+      tritanopia: 'url(#filtro-tritanopia)',
+      acromatopsia: 'url(#filtro-acromatopsia)',
+    };
+    document.documentElement.style.filter = mapaFiltros[modoDaltonismo] || 'none';
+    try { localStorage.setItem('portfolio_daltonismo', modoDaltonismo); } catch {}
+  }, [modoDaltonismo]);
 
   const aoSelecionarCorPicker = (hex) => { setCorHexInput(hex); setCorHexErro(false); mudarCorPrincipal(hex); };
   const aoDigitarCorHex = (v) => { setCorHexInput(v); if(hexValido(v)){setCorHexErro(false);mudarCorPrincipal(v);}else{setCorHexErro(true);} };
@@ -1343,6 +1396,7 @@ export default function App() {
           {cursorAtivo && <CursorNeon />}
           {cursorTrailAtivo && <CursorTrail />}
           <audio ref={audioRef} src={PLAYLIST[musicaAtualIndex].arquivo} loop />
+          <FiltrosDaltonismo />
 
           {/* ── conteúdo principal ── */}
           <div onClick={interagirComSeguranca}><Header /></div>
@@ -1351,6 +1405,7 @@ export default function App() {
           <Certificados />
           <Contact />
           <Footer />
+          <VLibras />
 
           {/* ── botão flutuante ── */}
           <button
@@ -1464,6 +1519,30 @@ export default function App() {
                   </div>
                 )}
                 {corHexErro && <span style={{ color:'#ff4a4a', fontSize:'0.75rem' }}>{t.corHexInvalida}</span>}
+              </div>
+
+              <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
+
+              {/* modo daltonismo */}
+              <div>
+                <h4>{t.daltonismoLabel}</h4>
+                <select
+                  value={modoDaltonismo}
+                  onChange={(e) => setModoDaltonismo(e.target.value)}
+                  style={{ width:'100%', marginTop:'8px', padding:'8px 10px', background:'#0d0d0d', color:'#fff', border:'1px solid #222', borderRadius:'8px', fontSize:'0.85rem', cursor:'pointer' }}
+                >
+                  <option value="nenhum">{t.daltonismoNenhum}</option>
+                  <option value="protanopia">{t.daltonismoProtanopia}</option>
+                  <option value="deuteranopia">{t.daltonismoDeuteranopia}</option>
+                  <option value="tritanopia">{t.daltonismoTritanopia}</option>
+                  <option value="acromatopsia">{t.daltonismoAcromatopsia}</option>
+                </select>
+
+                {modoDaltonismo !== 'nenhum' && (
+                  <div style={{ marginTop:'10px', padding:'8px 10px', background:'rgba(var(--primary-rgb),0.1)', border:'1px solid var(--primary)', borderRadius:'8px', fontSize:'0.75rem', color:'var(--primary)', textAlign:'center' }}>
+                    {t.daltonismoCredito}
+                  </div>
+                )}
               </div>
 
               <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
@@ -1598,7 +1677,6 @@ export default function App() {
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </>
@@ -1612,3 +1690,4 @@ const styles = {
   checkbox:   { cursor:'pointer', accentColor:'var(--primary)', width:'16px', height:'16px' },
   fontBtn:    { flex:1, padding:'6px', background:'#0d0d0d', color:'#fff', borderRadius:'6px', cursor:'pointer', fontSize:'0.85rem', textAlign:'center' }
 };
+
