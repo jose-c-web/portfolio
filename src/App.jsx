@@ -192,6 +192,31 @@ const STATUS_CAFE = [
   { label: "Calor",   valor: 75 },
 ];
 
+const styles = {
+  fontBtn: {
+    padding: '8px',
+    background: '#0d0d0d',
+    color: '#fff',
+    border: '1px solid #222',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+  },
+  controlRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '8px',
+    fontSize: '0.85rem'
+  },
+  checkbox: {
+    accentColor: 'var(--primary)',
+    cursor: 'pointer',
+    width: '16px',
+    height: '16px'
+  }
+};
+
 function hexParaRgbString(hex) {
   const limpo = hex.replace('#', '');
   const r = parseInt(limpo.substring(0, 2), 16);
@@ -566,7 +591,7 @@ function BarraProgresso() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   return (
-    <div style={{ position:'fixed', top:0, left:0, width:'100%', height:'3px', zIndex:99999, background:'rgba(255,255,255,0.05)' }}>
+    <div style={{ position:'fixed', top:0, left:0, width:'100%', height:'3px', zIndex:99999, background:'rgba(255,255,255,0.05)', pointerEvents:'none' }}>
       <div style={{ height:'100%', width:`${pct}%`, background:'var(--primary)', boxShadow:'0 0 8px var(--primary)', transition:'width 0.1s linear' }} />
     </div>
   );
@@ -801,7 +826,7 @@ export default function App() {
   const [trailAutoPerf, setTrailAutoPerf] = useState(() => {
     try { return localStorage.getItem('portfolio_trail_autoperf') !== 'false'; } catch { return true; }
   });
-  const [trailPerfInfo, setTrailPerfInfo] = useState({ fps: 60, qualidade: 1 });
+  const [, setTrailPerfInfo] = useState({ fps: 60, qualidade: 1 });
   const aoMudarPerformance = useCallback((info) => setTrailPerfInfo(info), []);
   const [trailIntensidade, setTrailIntensidade] = useState(() => {
     try { return parseInt(localStorage.getItem('portfolio_trail_intensidade') || '5'); } catch { return 5; }
@@ -832,7 +857,7 @@ export default function App() {
 
     if (novasFaixas.length > 0) {
       setPlaylist(prev => [...prev, ...novasFaixas]);
-      setMusicaAtualIndex(playlist.length); // muda direto para a 1ª musica enviada
+      setMusicaAtualIndex(playlist.length);
       setMusicaAtiva(true);
     }
     e.target.value = '';
@@ -840,7 +865,6 @@ export default function App() {
 
   const removerMusicaCustom = (id) => {
     setPlaylist(prev => {
-      const idxRemovido = prev.findIndex(m => m.id === id);
       const nova = prev.filter(m => m.id !== id);
       if (musicaAtualIndex >= nova.length) {
         setMusicaAtualIndex(Math.max(0, nova.length - 1));
@@ -1058,10 +1082,11 @@ export default function App() {
       setTimeout(() => setSucessoFonte(false), 3000);
     } catch {
       setErroFonte(idioma === 'pt' ? 'Fonte não encontrada no Google Fonts.' : 'Font not found on Google Fonts.');
-    } finally { // 👈 Corrigido de 'fontally' para 'finally'
+    } finally {
       setCarregandoFonte(false);
     }
   }, [desbloquearConquista, ganharXP, idioma, tentarCarregarFonte]);
+
   const removerFonteCustom = useCallback((valorFonte) => {
     setFontesCustom(prev => {
       const nova = prev.filter(f => f.valor !== valorFonte);
@@ -1552,25 +1577,32 @@ export default function App() {
           <ToastBoasVindas />
           <BotaoTopo />
           {particulasAtivas && <ParticulasFundo />}
+
+          {/* Cursors customizados com pointerEvents inline garantido para não travar cliques */}
           {cursorAtivo && (
-            <CustomCursorPointer
-              estilo={cursorEstilo}
-              cor={hexValido(cursorCorInput) ? cursorCorInput : '#4b80e2'}
-              tamanho={cursorTamanho}
-              customImage={cursorImagemAtual}
-            />
+            <div style={{ pointerEvents: 'none', position: 'fixed', inset: 0, zIndex: 999999 }}>
+              <CustomCursorPointer
+                estilo={cursorEstilo}
+                cor={hexValido(cursorCorInput) ? cursorCorInput : '#4b80e2'}
+                tamanho={cursorTamanho}
+                customImage={cursorImagemAtual}
+              />
+            </div>
           )}
           {cursorTrailAtivo && (
-            <CursorTrailCanvas
-              ativo={cursorTrailAtivo}
-              estilo={trailEstilo}
-              cor={corRastroEfetiva}
-              intensidade={trailIntensidade}
-              emoji={trailEmoji}
-              autoPerf={trailAutoPerf}
-              onPerfChange={aoMudarPerformance}
-            />
+            <div style={{ pointerEvents: 'none', position: 'fixed', inset: 0, zIndex: 999998 }}>
+              <CursorTrailCanvas
+                ativo={cursorTrailAtivo}
+                estilo={trailEstilo}
+                cor={corRastroEfetiva}
+                intensidade={trailIntensidade}
+                emoji={trailEmoji}
+                autoPerf={trailAutoPerf}
+                onPerfChange={aoMudarPerformance}
+              />
+            </div>
           )}
+
           <audio ref={audioRef} src={playlist[musicaAtualIndex]?.arquivo} loop />
           <FiltrosDaltonismo />
 
@@ -1581,17 +1613,33 @@ export default function App() {
           <Contact />
           <Footer />
 
+          {/* Botão de engrenagem livre fora da div do painel de cores */}
           <button
             className="botao-engrenagem"
             onMouseDown={iniciarArrastar}
             onTouchStart={iniciarArrastar}
             onClick={() => { if(!hasMoved.current) abrirConfiguracoes(); }}
-            style={{ position:'fixed', left:menuAberto?'auto':`${btnPos.x}px`, right:menuAberto?'280px':'auto', top:`${btnPos.y}px`, zIndex:10000, touchAction:'none', cursor:isDragging.current?'grabbing':'grab', transition:isDragging.current?'none':'left 0.4s ease,right 0.4s ease,top 0.2s ease-out' }}
+            style={{ 
+              position:'fixed', 
+              left: menuAberto ? 'auto' : `${btnPos.x}px`, 
+              right: menuAberto ? '330px' : 'auto', 
+              top: menuAberto ? '20px' : `${btnPos.y}px`, 
+              zIndex: 100001, 
+              touchAction: 'none', 
+              cursor: isDragging.current ? 'grabbing' : 'pointer', 
+              transition: isDragging.current ? 'none' : 'left 0.3s ease, right 0.3s ease, top 0.3s ease' 
+            }}
           >
             {menuAberto ? "×" : "⚙️"}
           </button>
 
-          <div className={`GerenciadorCores ${menuAberto?"aberto":""}`}>
+          {/* Gaveta do Gerenciador de Cores/Configurações */}
+          <div 
+            className={`GerenciadorCores ${menuAberto ? "aberto" : ""}`}
+            style={{
+              pointerEvents: menuAberto ? 'auto' : 'none'
+            }}
+          >
             <div className="conteudo-cores" style={{ display:'flex', flexDirection:'column', gap:'15px', maxHeight:'85vh', overflowY:'auto' }}>
 
               <div style={{ background:'rgba(0,0,0,0.4)', padding:'10px', borderRadius:'8px', border:'1px solid var(--border-neon)' }}>
@@ -1668,7 +1716,7 @@ export default function App() {
                 🔗 Compartilhar Tema
               </button>
 
-              {/* 🎧 ABA: UPLOAD DE MÚSICAS PRÓPRIAS */}
+              {/* 🎧 UPLOAD DE MÚSICAS PRÓPRIAS */}
               <div style={{ background:'rgba(0,0,0,0.4)', padding:'12px', borderRadius:'8px', border:'1px solid var(--border-neon)' }}>
                 <h4 style={{ margin: 0, color: 'var(--primary)', fontSize: '0.9rem' }}>{t.uploadMusicaTitulo}</h4>
                 <p style={{ fontSize: '0.72rem', color: '#888', margin: '4px 0 10px 0' }}>{t.uploadMusicaSub}</p>
@@ -2203,25 +2251,11 @@ export default function App() {
                   </div>
                   <p style={{ fontSize:'0.72rem', color:'#7a7a7a', marginTop:'-4px', lineHeight:1.5 }}>
                     Mede o FPS em tempo real e reduz automaticamente a quantidade de partículas
-                    quando o site começa a travar (recomendado para os rastros de emoji e fogo).
+                    quando o site começa a travar.
                   </p>
-                  {trailAutoPerf && (
-                    <div style={{
-                      display:'flex', justifyContent:'space-between', alignItems:'center',
-                      marginTop:'8px', padding:'8px 10px', borderRadius:'8px',
-                      background:'#0d0d0d', border:'1px solid #222',
-                      fontFamily:"'Fira Code',monospace", fontSize:'0.72rem'
-                    }}>
-                      <span style={{ color: trailPerfInfo.fps < 40 ? '#ff9f43' : 'var(--primary)' }}>
-                        {trailPerfInfo.fps} FPS
-                      </span>
-                      <span style={{ color:'#7a7a7a' }}>
-                        Qualidade: {Math.round(trailPerfInfo.qualidade * 100)}%
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
+
             </div>
           </div>
         </>
@@ -2229,9 +2263,3 @@ export default function App() {
     </>
   );
 }
-
-const styles = {
-  controlRow: { display:'flex', justifyContent:'space-between', alignItems:'center', fontSize:'0.85rem', color:'#a9a9a9', marginBottom:'10px' },
-  checkbox:   { cursor:'pointer', accentColor:'var(--primary)', width:'16px', height:'16px' },
-  fontBtn:    { flex:1, padding:'6px', background:'#0d0d0d', color:'#fff', borderRadius:'6px', cursor:'pointer', fontSize:'0.85rem', textAlign:'center' }
-};
