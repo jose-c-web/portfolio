@@ -17,6 +17,250 @@
   --mouse-x: 50%;
   --mouse-y: 50%;
   --font-size-base: 16px;
+
+  --menu-fundo: #ffffff;             /* Cor de fundo da janela */
+    --menu-texto: #2d3748;             /* Cor dos nomes dos idiomas */
+    --menu-hover: #4f46e5;             /* Cor ao passar o mouse */
+    --menu-fonte: 'Segoe UI', sans-serif;
+
+  --gt-fonte: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --gt-tamanho-fonte: 14px;
+
+    /* --- BOTÃO PRINCIPAL --- */
+    --gt-btn-fundo: #ffffff;
+    --gt-btn-texto: #2d3748;
+    --gt-btn-borda: #e2e8f0;
+    --gt-btn-raio: 8px;
+    --gt-btn-espacamento: 8px 16px;
+    --gt-btn-sombra: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+    /* Hover do Botão */
+    --gt-btn-hover-fundo: #4f46e5;
+    --gt-btn-hover-texto: #ffffff;
+    --gt-btn-hover-borda: #4f46e5;
+
+    /* --- CAIXA SUSPENSA (DROPDOWN) --- */
+    --gt-drop-fundo: #ffffff;
+    --gt-drop-texto: #2d3748;
+    --gt-drop-borda: #e2e8f0;
+    --gt-drop-raio: 12px;
+    --gt-drop-sombra: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    
+    /* Hover dos Itens da Lista */
+    --gt-item-hover-fundo: #eeeafe;
+    --gt-item-hover-texto: #4f46e5;
+}
+
+#google_translate_element {
+    display: inline-block;
+    font-family: var(--gt-fonte);
+  }
+
+  .goog-te-gadget-simple {
+    background-color: var(--gt-btn-fundo) !important;
+    border: 1px solid var(--gt-btn-borda) !important;
+    padding: var(--gt-btn-espacamento) !important;
+    border-radius: var(--gt-btn-raio) !important;
+    box-shadow: var(--gt-btn-sombra) !important;
+    font-size: var(--gt-tamanho-fonte) !important;
+    transition: all 0.2s ease-in-out !important;
+    cursor: pointer;
+    display: inline-flex !important;
+    align-items: center;
+  }
+
+  .goog-te-gadget-simple:hover {
+    background-color: var(--gt-btn-hover-fundo) !important;
+    border-color: var(--gt-btn-hover-borda) !important;
+  }
+
+  .goog-te-gadget-simple span,
+  .goog-te-menu-value span {
+    color: var(--gt-btn-texto) !important;
+    font-family: var(--gt-fonte) !important;
+    transition: color 0.2s ease-in-out;
+  }
+
+  .goog-te-gadget-simple:hover span,
+  .goog-te-gadget-simple:hover .goog-te-menu-value span {
+    color: var(--gt-btn-hover-texto) !important;
+  }
+
+  /* Oculta o ícone nativo do Google */
+  .goog-te-gadget-icon {
+    display: none !important;
+  }
+
+  .goog-te-menu-frame {
+    box-shadow: var(--gt-drop-sombra) !important;
+    border-radius: var(--gt-drop-raio) !important;
+  }
+
+  /* Modal/Menu suspenso */
+  .goog-te-menu2 {
+    background-color: var(--gt-drop-fundo) !important;
+    border: 1px solid var(--gt-drop-borda) !important;
+    border-radius: var(--gt-drop-raio) !important;
+    padding: 6px !important;
+    overflow: hidden !important;
+  }
+
+  /* Tabela interna do menu */
+  .goog-te-menu2-item div,
+  .goog-te-menu2-item-selected div {
+    color: var(--gt-drop-texto) !important;
+    background-color: transparent !important;
+    font-family: var(--gt-fonte) !important;
+    font-size: var(--gt-tamanho-fonte) !important;
+    padding: 8px 12px !important;
+    border-radius: calc(var(--gt-drop-raio) / 2) !important;
+    transition: all 0.15s ease !important;
+  }
+
+  /* Hover nos idiomas da lista */
+  .goog-te-menu2-item:hover div {
+    background-color: var(--gt-item-hover-fundo) !important;
+    color: var(--gt-item-hover-texto) !important;
+  }
+
+  /* Item que está selecionado atualmente */
+  .goog-te-menu2-item-selected div {
+    font-weight: bold !important;
+    color: var(--gt-item-hover-texto) !important;
+  }
+
+  .skiptranslate {
+    font-size: 0 !important;
+  }
+  .skiptranslate * {
+    font-size: var(--gt-tamanho-fonte);
+  }
+  .goog-te-banner-frame, 
+.goog-te-banner,
+iframe.goog-te-banner-frame,
+.VIpgJd-Z441Md-FW25cd-haAclf{
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+}
+
+.translate-dropdown-menu {
+  position: absolute;
+  right: 0;
+  width: 220px;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  padding: 6px;
+}
+
+/* Botão Customizado de Tradução */
+.meu-seletor-btn {
+  background-color: #1a1a1a;        /* Fundo escuro igual ao do modal */
+  color: #ffffff;                   /* Texto branco */
+  border: 1px solid #333333;        /* Borda discreta */
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: inherit;             /* Usa a mesma fonte do seu site */
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+/* Efeito ao passar o mouse */
+.meu-seletor-btn:hover {
+  background-color: #262626;
+  border-color: #ff4b4b;            /* Borda acende no vermelho do seu tema */
+  color: #ff4b4b;                   /* Texto em destaque vermelho */
+  box-shadow: 0 0 10px rgba(255, 75, 75, 0.2);
+}
+
+/* Estilo da setinha dentro do botão */
+.meu-seletor-btn .arrow {
+  font-size: 10px;
+  color: #ff4b4b;                   /* Seta vermelha */
+  transition: transform 0.2s ease;
+}
+
+/* 1. SEÇÃO DA PESQUISA */
+.search-box {
+  width: 100%;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 8px 10px;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.search-box input:focus {
+  border-color: #ff4b4b; /* Ou a cor de destaque do seu tema */
+}
+
+/* 2. SEÇÃO DE SEPARAÇÃO DA LISTA DE RESULTADOS */
+.results-container {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #334155; /* Linha de separação */
+}
+
+.idiomas-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 160px; /* Limita a altura para não ficar gigante */
+  overflow-y: auto;
+}
+
+.idiomas-lista li {
+  padding: 8px 10px;
+  color: #cbd5e1;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.idiomas-lista li:hover {
+  background-color: #ff4b4b;
+  color: #ffffff;
+}
+
+.idiomas-lista li.no-results {
+  color: #64748b;
+  text-align: center;
+  font-style: italic;
+  cursor: default;
+}
+
+/* Isso funciona via CSS puro: altera o contêiner/janela externa */
+iframe.goog-te-menu-frame {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 12px !important;
+  border: 2px solid #4f46e5 !important;
 }
 
 * {

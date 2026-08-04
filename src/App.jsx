@@ -6,6 +6,7 @@ import Certificados from './components/Certificados';
 import Contact from './components/Contact'; 
 import Footer from './components/Footer';
 import Clock from './components/Clock';
+
 import './components/vlibras.js';
 import './App.css';
 import { CustomCursorPointer, CursorTrailCanvas, FormaCursor, CURSOR_ESTILOS, TRAIL_ESTILOS } from './components/CursorCustom';
@@ -15,6 +16,158 @@ import track2 from './assets/Musics/dan(sukuna).mp3';
 import track3 from './assets/Musics/fenix(nova).mp3';
 
 import imagemMonster from './assets/IMG/monster.png';
+
+// Componente para carregar e renderizar o Google Translate
+function GoogleTranslate() {
+  const [lang, setLang] = useState('pt');
+  const [langLabel, setLangLabel] = useState('Português');
+  const [idiomas, setIdiomas] = useState([]);
+  const [busca, setBusca] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const dropdownRef = useRef(null);
+
+  // Remove a barra branca superior do Google
+  const removerBarraGoogle = () => {
+    document.body.style.top = '0px';
+    document.body.style.position = 'static';
+
+    const seletoresBanner = [
+      '.goog-te-banner-frame',
+      '.goog-te-banner',
+      'iframe.goog-te-banner-frame',
+      '.VIpgJd-Z441Md-FW25cd-haAclf',
+      '#goog-gt-tt'
+    ];
+
+    seletoresBanner.forEach((seletor) => {
+      document.querySelectorAll(seletor).forEach((el) => el.remove());
+    });
+  };
+
+  useEffect(() => {
+    window.googleTranslateElementInit = () => {
+      if (window.google && window.google.translate) {
+        new window.google.translate.TranslateElement(
+          { pageLanguage: 'pt', autoDisplay: false },
+          'google_translate_element'
+        );
+      }
+    };
+
+    if (!document.getElementById('google-translate-script')) {
+      const script = document.createElement('script');
+      script.id = 'google-translate-script';
+      script.type = 'text/javascript';
+      script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
+    const observer = new MutationObserver(() => {
+      removerBarraGoogle();
+
+      const selectGoogle = document.querySelector('.goog-te-combo');
+      if (selectGoogle && selectGoogle.options.length > 1 && idiomas.length === 0) {
+        const listaIdiomas = Array.from(selectGoogle.options)
+          .map((opt) => ({
+            value: opt.value,
+            label: opt.text,
+          }))
+          .filter((opt) => opt.value !== '');
+
+        setIdiomas(listaIdiomas);
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [idiomas.length]);
+
+  const selecionarIdioma = (value, label) => {
+    setLang(value);
+    setLangLabel(label);
+    setIsOpen(false);
+    setBusca('');
+
+    const selectGoogle = document.querySelector('.goog-te-combo');
+    if (selectGoogle) {
+      selectGoogle.value = value;
+      selectGoogle.dispatchEvent(new Event('change'));
+
+      setTimeout(removerBarraGoogle, 100);
+      setTimeout(removerBarraGoogle, 500);
+      setTimeout(removerBarraGoogle, 1000);
+    }
+  };
+
+  // Filtra idiomas com base na busca
+  const idiomasFiltrados = busca.trim() !== '' 
+    ? idiomas.filter((item) => item.label.toLowerCase().includes(busca.toLowerCase()))
+    : [];
+
+  return (
+    <div className="custom-translate-wrapper" ref={dropdownRef}>
+      <div id="google_translate_element" style={{ display: 'none' }} />
+
+      <button 
+        type="button"
+        className="meu-seletor-btn" 
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>🌐 {langLabel}</span>
+        <span className="arrow">{isOpen ? '▲' : '▼'}</span>
+      </button>
+
+      {isOpen && (
+        <div className="translate-dropdown-menu">
+          {/* CAMPO DE PESQUISA (ELEMENTO 1) */}
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Digite um idioma..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              autoFocus
+            />
+          </div>
+
+          {/* LISTA DE IDIOMAS SEPARADA (ELEMENTO 2) */}
+          {busca.trim() !== '' && (
+            <div className="results-container">
+              <ul className="idiomas-lista">
+                {idiomasFiltrados.map((item) => (
+                  <li
+                    key={item.value}
+                    className={lang === item.value ? 'active' : ''}
+                    onClick={() => selecionarIdioma(item.value, item.label)}
+                  >
+                    {item.label}
+                  </li>
+                ))}
+
+                {idiomasFiltrados.length === 0 && (
+                  <li className="no-results">Nenhum idioma encontrado</li>
+                )}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const PLAYLIST_INICIAL = [
   { id: 0, nome: "Track 01 - Perdas", arquivo: track1, custom: false },
@@ -77,7 +230,7 @@ const traducoes = {
     efeitosSistema: "Efeitos & Sistema",
     lanterna: "Lanterna Mouse",
     animacoes: "Animações",
-    partculas: "Partículas Fundo",
+    particulas: "Partículas Fundo",
     opacidadeVidro: "Opacidade Vidro",
     glitch: "Efeito Glitch",
     cursorCustom: "Cursor Neon",
@@ -126,7 +279,7 @@ const traducoes = {
     efeitosSistema: "Effects & System",
     lanterna: "Mouse Flashlight",
     animacoes: "Animations",
-    partculas: "Background Particles",
+    particulas: "Background Particles",
     opacidadeVidro: "Glass Opacity",
     glitch: "Glitch Effect",
     cursorCustom: "Neon Cursor",
@@ -847,7 +1000,7 @@ export default function App() {
       if (arquivo.type.startsWith('audio/')) {
         const urlAudio = URL.createObjectURL(arquivo);
         novasFaixas.push({
-          id: Date.now() + Math.random(),
+          id: Date.now() + Math.random().toString(36).slice(2, 9),
           nome: arquivo.name.replace(/\.[^/.]+$/, ""),
           arquivo: urlAudio,
           custom: true
@@ -1605,6 +1758,7 @@ export default function App() {
 
           <audio ref={audioRef} src={playlist[musicaAtualIndex]?.arquivo} loop />
           <FiltrosDaltonismo />
+          
 
           <div onClick={interagirComSeguranca}><Header /></div>
           <About />
@@ -1641,6 +1795,14 @@ export default function App() {
             }}
           >
             <div className="conteudo-cores" style={{ display:'flex', flexDirection:'column', gap:'15px', maxHeight:'85vh', overflowY:'auto' }}>
+
+              {/* Inserção do Widget Google Translate */}
+              <div style={{ background:'rgba(0,0,0,0.4)', padding:'10px', borderRadius:'8px', border:'1px solid var(--border-neon)' }}>
+                <span style={{ fontSize:'0.7rem', color:'var(--text-gray)', letterSpacing:'1px', textTransform:'uppercase', display:'block', marginBottom:'8px', textAlign:'center' }}>
+                  🌐 Traduzir Página
+                </span>
+                <GoogleTranslate />
+              </div>
 
               <div style={{ background:'rgba(0,0,0,0.4)', padding:'10px', borderRadius:'8px', border:'1px solid var(--border-neon)' }}>
                 <span style={{ fontSize:'0.7rem', color:'var(--text-gray)', letterSpacing:'1px', textTransform:'uppercase', display:'block', marginBottom:'8px', textAlign:'center' }}>
@@ -2006,7 +2168,7 @@ export default function App() {
                 <h4 style={{ marginBottom:'10px' }}>{t.efeitosSistema}</h4>
                 <div style={styles.controlRow}><span>{t.lanterna}</span><input type="checkbox" checked={lanternaAtiva} onChange={(e)=>setLanternaAtiva(e.target.checked)} style={styles.checkbox}/></div>
                 <div style={styles.controlRow}><span>{t.animacoes}</span><input type="checkbox" checked={animacoesAtivas} onChange={(e)=>setAnimacoesAtivas(e.target.checked)} style={styles.checkbox}/></div>
-                <div style={styles.controlRow}><span>{t.partculas}</span><input type="checkbox" checked={particulasAtivas} onChange={(e)=>setParticulasAtivas(e.target.checked)} style={styles.checkbox}/></div>
+                <div style={styles.controlRow}><span>{t.particulas}</span><input type="checkbox" checked={particulasAtivas} onChange={(e)=>setParticulasAtivas(e.target.checked)} style={styles.checkbox}/></div>
                 <div style={styles.controlRow}><span>{t.glitch}</span><input type="checkbox" checked={glitchAtivo} onChange={(e)=>setGlitchAtivo(e.target.checked)} style={styles.checkbox}/></div>
                 <div style={styles.controlRow}><span>Modo Lo-Fi</span><input type="checkbox" checked={lofiMode} onChange={(e)=>setLofiMode(e.target.checked)} style={styles.checkbox}/></div>
                 <div style={styles.controlRow}><span>Modo Recrutador</span><input type="checkbox" checked={recruiterMode} onChange={(e)=>setRecruiterMode(e.target.checked)} style={styles.checkbox}/></div>
@@ -2231,28 +2393,6 @@ export default function App() {
                       />
                     </div>
                   )}
-                  {trailCorErro && <span style={{ color:'#ff4a4a', fontSize:'0.75rem' }}>{t.corHexInvalida}</span>}
-
-                  <div style={{ ...styles.controlRow, marginTop:'12px' }}>
-                    <span>Intensidade</span>
-                    <span style={{ fontFamily:"'Fira Code',monospace", color:'var(--primary)' }}>{trailIntensidade}</span>
-                  </div>
-                  <input type="range" min="1" max="10" value={trailIntensidade} onChange={(e)=>setTrailIntensidade(Number(e.target.value))} style={{ width:'100%', accentColor:'var(--primary)' }} />
-
-                  {/* ⚡ MODO PERFORMANCE AUTOMÁTICO */}
-                  <div style={{ ...styles.controlRow, marginTop:'16px' }}>
-                    <span>⚡ Performance automática</span>
-                    <input
-                      type="checkbox"
-                      checked={trailAutoPerf}
-                      onChange={(e)=>setTrailAutoPerf(e.target.checked)}
-                      style={styles.checkbox}
-                    />
-                  </div>
-                  <p style={{ fontSize:'0.72rem', color:'#7a7a7a', marginTop:'-4px', lineHeight:1.5 }}>
-                    Mede o FPS em tempo real e reduz automaticamente a quantidade de partículas
-                    quando o site começa a travar.
-                  </p>
                 </div>
               </div>
 
