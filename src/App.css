@@ -840,16 +840,22 @@ header h1, .footer-content h2 {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
   opacity: 0;
   transform: translateX(30px) scale(0.9);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              pointer-events 0s linear 0.4s;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  pointer-events: none;
 }
 
 .GerenciadorCores.aberto .conteudo-cores {
   opacity: 1;
   transform: translateX(0) scale(1);
   pointer-events: auto;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              pointer-events 0s linear 0s;
 }
 
 .conteudo-cores h4 {
