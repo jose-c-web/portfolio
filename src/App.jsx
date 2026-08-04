@@ -6,8 +6,9 @@ import Certificados from './components/Certificados';
 import Contact from './components/Contact'; 
 import Footer from './components/Footer';
 import Clock from './components/Clock';
-import './components/vlibras.js'
+import './components/vlibras.js';
 import './App.css';
+import { CustomCursorPointer, CursorTrailCanvas, FormaCursor, CURSOR_ESTILOS, TRAIL_ESTILOS } from './components/CursorCustom';
 
 import track1 from './assets/Musics/perdas.mp3';
 import track2 from './assets/Musics/dan(sukuna).mp3'; 
@@ -170,7 +171,6 @@ const FONTES_DISPONIVEIS = [
 
 const KONAMI_CODE = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
 
-// XP ganho por ação
 const XP_ACTIONS = {
   abrir_painel: 10,
   mudar_cor: 15,
@@ -179,15 +179,6 @@ const XP_ACTIONS = {
   conquista: 50,
 };
 
-// Status do Energético (cresce animado até o valor fixo)
-const STATUS_ENERGETICO = [
-  { label: "Cafeína",    valor: 95 },
-  { label: "Taurina",    valor: 80 },
-  { label: "Adrenalina", valor: 100 },
-  { label: "Açúcar",     valor: 70 },
-];
-
-// Status do Café (cresce animado até o valor fixo)
 const STATUS_CAFE = [
   { label: "Cafeína", valor: 65 },
   { label: "Aroma",   valor: 90 },
@@ -207,7 +198,6 @@ function hexValido(hex) {
   return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(hex);
 }
 
-// Expande #abc pra #aabbcc, pra manter os cálculos abaixo sempre em 6 dígitos
 function normalizarHex(hex) {
   const limpo = hex.replace('#', '');
   if (limpo.length === 3) {
@@ -216,16 +206,14 @@ function normalizarHex(hex) {
   return '#' + limpo;
 }
 
-// Luminância relativa (fórmula WCAG) — usada pra decidir se uma cor é "clara" ou "escura"
 function luminanciaRelativa(hex) {
-  if (!hexValido(hex)) return 1; // assume claro se o valor ainda estiver inválido/incompleto
+  if (!hexValido(hex)) return 1;
   const limpo = normalizarHex(hex).replace('#', '');
   const [r, g, b] = [0, 2, 4].map(i => parseInt(limpo.substring(i, i + 2), 16) / 255);
   const canal = (c) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
   return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
 }
 
-// Mistura duas cores hex numa proporção (peso 0 = 100% hex1, peso 1 = 100% hex2)
 function misturarHex(hex1, hex2, peso) {
   const c1 = normalizarHex(hex1).replace('#', '').match(/.{2}/g).map(v => parseInt(v, 16));
   const c2 = normalizarHex(hex2).replace('#', '').match(/.{2}/g).map(v => parseInt(v, 16));
@@ -240,11 +228,9 @@ function formatarTempo(segundos) {
   return `${m}min ${s}s`;
 }
 
-// ─── Barrinhas de status reutilizáveis (Energético / Café) ───
 function StatusBars({ itens }) {
   const [larguras, setLarguras] = useState(() => itens.map(() => 0));
   useEffect(() => {
-    // começa em 0 e anima até o valor fixo no próximo frame
     const id = requestAnimationFrame(() => {
       setLarguras(itens.map(i => i.valor));
     });
@@ -267,7 +253,6 @@ function StatusBars({ itens }) {
   );
 }
 
-// ─── MatrixRainEffect ──────────────────────────────────────────
 function MatrixRainEffect() {
   const canvasRef = useRef(null);
   useEffect(() => {
@@ -297,7 +282,6 @@ function MatrixRainEffect() {
   return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', zIndex:99999, pointerEvents:'none' }} />;
 }
 
-// ─── Partículas de fundo ──────────────────────────────────────
 function ParticulasFundo() {
   const canvasRef = useRef(null);
   useEffect(() => {
@@ -329,8 +313,6 @@ function ParticulasFundo() {
   return <canvas ref={canvasRef} style={{ position:'fixed', top:0, left:0, width:'100vw', height:'100vh', zIndex:1, pointerEvents:'none' }} />;
 }
 
-// ─── Filtros SVG do Modo Daltonismo ────────────────────────────
-// Renderizados uma única vez e ocultos; são acionados via CSS `filter: url(#id)`.
 function FiltrosDaltonismo() {
   return (
     <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
@@ -352,53 +334,13 @@ function FiltrosDaltonismo() {
   );
 }
 
-// ─── Rastro de partículas do cursor ───────────────────────────
-function CursorTrail() {
-  useEffect(() => {
-    const particles = [];
-    const onMove = (e) => {
-      for (let i = 0; i < 3; i++) {
-        const el = document.createElement('div');
-        el.className = 'cursor-trail-particle';
-        el.style.left = e.clientX + 'px';
-        el.style.top  = e.clientY + 'px';
-        document.body.appendChild(el);
-        particles.push(el);
-        setTimeout(() => { el.remove(); }, 600);
-      }
-    };
-    window.addEventListener('mousemove', onMove);
-    return () => { window.removeEventListener('mousemove', onMove); particles.forEach(p => p.remove()); };
-  }, []);
-  return null;
-}
-
-// ─── Cursor neon ──────────────────────────────────────────────
-function CursorNeon() {
-  const [pos, setPos] = useState({ x:-100, y:-100 });
-  const [exp, setExp]  = useState(false);
-  const [mob, setMob]  = useState(false);
-  useEffect(() => {
-    const isMob = window.innerWidth < 768;
-    setMob(isMob);
-    if (isMob) return;
-    const mv = (e) => setPos({ x:e.clientX, y:e.clientY });
-    const ov = (e) => setExp(!!(e.target.closest && e.target.closest('a,button,input')));
-    window.addEventListener('mousemove', mv);
-    window.addEventListener('mouseover', ov);
-    return () => { window.removeEventListener('mousemove', mv); window.removeEventListener('mouseover', ov); };
-  }, []);
-  if (mob) return null;
-  return <div className={`custom-neon-cursor ${exp ? 'cursor-expandido' : ''}`} style={{ left:`${pos.x}px`, top:`${pos.y}px` }} />;
-}
-
-// ─── Mini jogo Snake ──────────────────────────────────────────
 function SnakeGame({ onClose }) {
   const canvasRef = useRef(null);
   const stateRef  = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx    = canvas.getContext('2d');
     const SIZE   = 16;
     const W = Math.floor(canvas.width  / SIZE);
@@ -445,7 +387,6 @@ function SnakeGame({ onClose }) {
       s.dir = s.next;
       const head = { x: s.snake[0].x + s.dir.x, y: s.snake[0].y + s.dir.y };
 
-      // paredes
       if (head.x<0||head.x>=W||head.y<0||head.y>=H||s.snake.some(seg=>seg.x===head.x&&seg.y===head.y)) {
         s.dead=true; return;
       }
@@ -460,12 +401,10 @@ function SnakeGame({ onClose }) {
 
       ctx.fillStyle='#050505'; ctx.fillRect(0,0,canvas.width,canvas.height);
 
-      // grid
       ctx.strokeStyle='rgba(255,255,255,0.04)';
       for (let x=0;x<W;x++) { ctx.beginPath(); ctx.moveTo(x*SIZE,0); ctx.lineTo(x*SIZE,canvas.height); ctx.stroke(); }
       for (let y=0;y<H;y++) { ctx.beginPath(); ctx.moveTo(0,y*SIZE); ctx.lineTo(canvas.width,y*SIZE); ctx.stroke(); }
 
-      // cobra
       s.snake.forEach((seg,i) => {
         ctx.fillStyle = i===0 ? '#fff' : primary;
         ctx.shadowColor = primary; ctx.shadowBlur = 8;
@@ -473,12 +412,10 @@ function SnakeGame({ onClose }) {
       });
       ctx.shadowBlur=0;
 
-      // comida
       ctx.fillStyle='#ff007f'; ctx.shadowColor='#ff007f'; ctx.shadowBlur=12;
       ctx.beginPath(); ctx.arc(s.food.x*SIZE+SIZE/2, s.food.y*SIZE+SIZE/2, SIZE/2-2, 0, Math.PI*2); ctx.fill();
       ctx.shadowBlur=0;
 
-      // score
       ctx.fillStyle='#fff'; ctx.font='14px monospace'; ctx.textAlign='left';
       ctx.fillText(`Score: ${s.score}`, 8, 20);
     };
@@ -500,8 +437,6 @@ function SnakeGame({ onClose }) {
   );
 }
 
-// ─── Easter egg Energético (lata neon + status bars) ──────────
-// Componente Interno do Easter Egg do Energético (Atualizado)
 function EnergeticoEasterEgg({ onClose, imagemLata }) {
   const STATUS_ENERGETICO_LOCAL = [
     { label: 'Foco', valor: 100 },
@@ -523,7 +458,7 @@ function EnergeticoEasterEgg({ onClose, imagemLata }) {
     <div className="energetico-easter-egg" onClick={onClose}>
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Oswald:wght=700&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap');
           
           .monster-lata-premium-wrap {
             display: flex;
@@ -548,8 +483,6 @@ function EnergeticoEasterEgg({ onClose, imagemLata }) {
       </style>
 
       <div className="energetico-inner" onClick={(e) => e.stopPropagation()}>
-        
-        {/* Renderização da Imagem Local vinda por Propriedade */}
         <div className="monster-lata-premium-wrap">
           {imagemLata ? (
             <img 
@@ -564,7 +497,6 @@ function EnergeticoEasterEgg({ onClose, imagemLata }) {
           )}
         </div>
 
-        {/* Área de Conteúdo Inferior Totalmente Preservada */}
         <div className="energetico-conteudo-inferior" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px', boxSizing: 'border-box' }}>
           <div className="energetico-text">
             <span style={{ fontFamily: "'Oswald', 'Arial Black', sans-serif", fontWeight: 700 }}>
@@ -586,13 +518,15 @@ function EnergeticoEasterEgg({ onClose, imagemLata }) {
   );
 }
 
-// ─── Easter egg Café (xícara com vapor + status bars) ─────────
 function CafeEasterEgg({ onClose }) {
   useEffect(() => {
     const esc = (e) => { if(e.key==='Escape') onClose(); };
     window.addEventListener('keydown', esc);
-    setTimeout(onClose, 7000);
-    return () => window.removeEventListener('keydown', esc);
+    const id = setTimeout(onClose, 7000);
+    return () => {
+      window.removeEventListener('keydown', esc);
+      clearTimeout(id);
+    };
   }, [onClose]);
   return (
     <div className="cafe-easter-egg" onClick={onClose}>
@@ -615,7 +549,6 @@ function CafeEasterEgg({ onClose }) {
   );
 }
 
-// ─── Barra de progresso de leitura ────────────────────────────
 function BarraProgresso() {
   const [pct, setPct] = useState(0);
   useEffect(() => {
@@ -633,7 +566,6 @@ function BarraProgresso() {
   );
 }
 
-// ─── Botão voltar ao topo ─────────────────────────────────────
 function BotaoTopo() {
   const [vis, setVis] = useState(false);
   useEffect(() => {
@@ -651,15 +583,15 @@ function BotaoTopo() {
   );
 }
 
-// ─── Toast de boas-vindas ─────────────────────────────────────
 function ToastBoasVindas() {
   const [vis, setVis] = useState(false);
   useEffect(() => {
     const j = localStorage.getItem('portfolio_visited');
     if (!j) {
       localStorage.setItem('portfolio_visited', '1');
-      setTimeout(() => setVis(true), 1800);
-      setTimeout(() => setVis(false), 7000);
+      const t1 = setTimeout(() => setVis(true), 1800);
+      const t2 = setTimeout(() => setVis(false), 7000);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
     }
   }, []);
   if (!vis) return null;
@@ -671,7 +603,6 @@ function ToastBoasVindas() {
   );
 }
 
-// ─── GitHub Activity Feed ──────────────────────────────────────
 function GitHubFeed({ usuario = 'jose-c-web' }) {
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -745,33 +676,30 @@ export default function App() {
     catch { return []; }
   });
 
-  // ── XP ──
+  // ── XP & Tempo ──
   const [xp, setXp] = useState(() => {
     try { return parseInt(localStorage.getItem('portfolio_xp') || '0'); } catch { return 0; }
   });
-
-  // ── tempo ──
   const [tempoSegundos, setTempoSegundos] = useState(0);
 
-  // ── painel ──
-  // Estado inicial da cor de fundo (resgata do localStorage se existir)
-const [corFundo, setCorFundo] = useState(() => {
-  return localStorage.getItem('portfolio_cor_fundo') || '#050505';
-});
+  // ── painel & preferências de fundo ──
+  const [corFundo, setCorFundo] = useState(() => {
+    return localStorage.getItem('portfolio_cor_fundo') || '#050505';
+  });
 
-// Aplica a cor na variável CSS --bg-dark e salva no localStorage
-useEffect(() => {
-  document.documentElement.style.setProperty('--bg-dark', corFundo);
-  try {
-    localStorage.setItem('portfolio_cor_fundo', corFundo);
-  } catch (e) {
-    console.warn("Erro ao salvar a cor de fundo:", e);
-  }
-}, [corFundo]);
+  useEffect(() => {
+    document.documentElement.style.setProperty('--bg-dark', corFundo);
+    try {
+      localStorage.setItem('portfolio_cor_fundo', corFundo);
+    } catch (e) {
+      console.warn("Erro ao salvar a cor de fundo:", e);
+    }
+  }, [corFundo]);
 
-const mudarCorFundo = (hex) => {
-  setCorFundo(hex);
-};
+  const mudarCorFundo = (hex) => {
+    setCorFundo(hex);
+  };
+
   const [menuAberto, setMenuAberto]       = useState(false);
   const [lanternaAtiva, setLanternaAtiva] = useState(true);
   const [animacoesAtivas, setAnimacoesAtivas] = useState(true);
@@ -779,7 +707,7 @@ const mudarCorFundo = (hex) => {
   const [fonteSelecionada, setFonteSelecionada] = useState("'Poppins', sans-serif");
   const [tamanhoFonte, setTamanhoFonte]   = useState(16);
 
-  // ── Google Fonts (busca/instalação dinâmica) ──
+  // ── Google Fonts ──
   const [fontesCustom, setFontesCustom] = useState(() => {
     try { return JSON.parse(localStorage.getItem('portfolio_fontes_custom') || '[]'); } catch { return []; }
   });
@@ -790,16 +718,88 @@ const mudarCorFundo = (hex) => {
   const [googleApiKey, setGoogleApiKey]           = useState(() => {
     try { return localStorage.getItem('portfolio_google_fonts_key') || ''; } catch { return ''; }
   });
-  const [listaFontesGoogle, setListaFontesGoogle] = useState([]); // catálogo completo (só se houver API key)
+  const [listaFontesGoogle, setListaFontesGoogle] = useState([]);
   const [sugestoesFontes, setSugestoesFontes]     = useState([]);
-  const [particulasAtivas, setParticulasAtivas] = useState(true);
-  const [cursorTrailAtivo, setCursorTrailAtivo] = useState(false);
-  const [contadorVisitas, setContadorVisitas]   = useState(1337);
+  const [particulasAtivas, setParticulasAtivas]   = useState(true);
+  const [cursorTrailAtivo, setCursorTrailAtivo]   = useState(false);
+  const [contadorVisitas, setContadorVisitas]     = useState(1337);
 
   // ── UI ──
   const [idioma, setIdioma]               = useState('pt');
   const [glitchAtivo, setGlitchAtivo]     = useState(false);
   const [cursorAtivo, setCursorAtivo]     = useState(false);
+
+  // ── customização do cursor ──
+  const [cursorEstilo, setCursorEstilo]   = useState(() => {
+    try { return localStorage.getItem('portfolio_cursor_estilo') || 'dot'; } catch { return 'dot'; }
+  });
+  const [cursorCorInput, setCursorCorInput] = useState(() => {
+    try { return localStorage.getItem('portfolio_cursor_cor') || '#4b80e2'; } catch { return '#4b80e2'; }
+  });
+  const [cursorCorErro, setCursorCorErro] = useState(false);
+  const [cursorTamanho, setCursorTamanho] = useState(() => {
+    try { return parseInt(localStorage.getItem('portfolio_cursor_tamanho') || '28'); } catch { return 28; }
+  });
+
+  // ── imagens importadas para o cursor ──
+  const [cursorImagens, setCursorImagens] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('portfolio_cursor_imagens') || '[]'); } catch { return []; }
+  });
+  const [cursorImagemId, setCursorImagemId] = useState(() => {
+    try { return localStorage.getItem('portfolio_cursor_imagem_id') || ''; } catch { return ''; }
+  });
+  const [cursorImagemErro, setCursorImagemErro] = useState('');
+  const inputImagemCursorRef = useRef(null);
+
+  const cursorImagemAtual = cursorImagens.find(img => img.id === cursorImagemId)?.dados || '';
+
+  const importarImagensCursor = (e) => {
+    const arquivos = Array.from(e.target.files || []);
+    if (!arquivos.length) return;
+    setCursorImagemErro('');
+    arquivos.forEach((arquivo) => {
+      if (!arquivo.type.startsWith('image/')) { setCursorImagemErro('Apenas arquivos de imagem são aceitos.'); return; }
+      if (arquivo.size > 500 * 1024) { setCursorImagemErro('Imagem muito grande (máx. 500KB).'); return; }
+      const leitor = new FileReader();
+      leitor.onload = () => {
+        const nova = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, nome: arquivo.name, dados: String(leitor.result) };
+        setCursorImagens(prev => [...prev, nova]);
+        setCursorImagemId(nova.id);
+        setCursorEstilo('custom-image');
+      };
+      leitor.onerror = () => setCursorImagemErro('Não foi possível ler a imagem.');
+      leitor.readAsDataURL(arquivo);
+    });
+    e.target.value = '';
+  };
+
+  const removerImagemCursor = (id) => {
+    setCursorImagens(prev => prev.filter(img => img.id !== id));
+    setCursorImagemId(prev => (prev === id ? '' : prev));
+  };
+
+  // ── customização do rastro ──
+  const [trailEstilo, setTrailEstilo]     = useState(() => {
+    try { return localStorage.getItem('portfolio_trail_estilo') || 'dots'; } catch { return 'dots'; }
+  });
+  const [trailCorAuto, setTrailCorAuto]   = useState(() => {
+    try { return localStorage.getItem('portfolio_trail_cor_auto') !== 'false'; } catch { return true; }
+  });
+  const [trailCorInput, setTrailCorInput] = useState(() => {
+    try { return localStorage.getItem('portfolio_trail_cor') || '#4b80e2'; } catch { return '#4b80e2'; }
+  });
+  const [trailCorErro, setTrailCorErro]   = useState(false);
+  const [trailEmoji, setTrailEmoji] = useState(() => {
+    try { return localStorage.getItem('portfolio_trail_emoji') || '⭐'; } catch { return '⭐'; }
+  });
+  const [trailAutoPerf, setTrailAutoPerf] = useState(() => {
+    try { return localStorage.getItem('portfolio_trail_autoperf') !== 'false'; } catch { return true; }
+  });
+  const [trailPerfInfo, setTrailPerfInfo] = useState({ fps: 60, qualidade: 1 });
+  const aoMudarPerformance = useCallback((info) => setTrailPerfInfo(info), []);
+  const [trailIntensidade, setTrailIntensidade] = useState(() => {
+    try { return parseInt(localStorage.getItem('portfolio_trail_intensidade') || '5'); } catch { return 5; }
+  });
   const [musicaAtiva, setMusicaAtiva]     = useState(false);
   const [musicaAtualIndex, setMusicaAtualIndex] = useState(0);
   const [comandoInput, setComandoInput]   = useState('');
@@ -811,31 +811,26 @@ const mudarCorFundo = (hex) => {
   const [chuvaMatrix, setChuvaMatrix]     = useState(false);
   const [hackSim, setHackSim]             = useState(false);
   const [linhasHack, setLinhasHack]       = useState([]);
-  const [contadorGlitch, setContadorGlitch] = useState(0);
+  const [, setContadorGlitch]             = useState(0);
   const [telaAzul, setTelaAzul]           = useState(false);
 
   // ── easter eggs ──
   const [snakeAberto, setSnakeAberto]     = useState(false);
   const [energeticoAtivo, setEnergeticoAtivo] = useState(false);
   const [cafeAtivo, setCafeAtivo]         = useState(false);
-  const [konamiSeq, setKonamiSeq]         = useState([]);
+  const [, setKonamiSeq]                  = useState([]);
   const [recruiterMode, setRecruiterMode] = useState(false);
   const [modoDaltonismo, setModoDaltonismo] = useState(() => {
     try { return localStorage.getItem('portfolio_daltonismo') || 'nenhum'; } catch { return 'nenhum'; }
   });
 
-  // ── cor ──
-  const [corHexInput, setCorHexInput]     = useState('#4b80e2');
-  const [corHexErro, setCorHexErro]       = useState(false);
-
-  // ── cor de fundo (mesmo sistema de roleta/hex da cor de destaque) ──
+  // ── cor de destaque e fundo ──
+  const [corHexInput, setCorHexInput]           = useState('#4b80e2');
+  const [corHexErro, setCorHexErro]             = useState(false);
   const [corFundoHexInput, setCorFundoHexInput] = useState(corFundo);
   const [corFundoErro, setCorFundoErro]         = useState(false);
 
-  // ── cor do texto (resolve letras que ficavam brancas em fundos claros) ──
-  // textoAuto: quando ativo, a cor do texto é recalculada sozinha (dark-mode
-  // automático) toda vez que o fundo mudar. Quando o usuário escolhe uma cor
-  // manualmente, textoAuto desliga e a escolha dele passa a valer sempre.
+  // ── cor do texto ──
   const [textoAuto, setTextoAuto]         = useState(() => {
     try { return localStorage.getItem('portfolio_texto_auto') !== 'false'; } catch { return true; }
   });
@@ -845,7 +840,7 @@ const mudarCorFundo = (hex) => {
   const [corTextoErro, setCorTextoErro]   = useState(false);
   const [modoTextoEscuro, setModoTextoEscuro] = useState(false);
 
-  // ── arrastar botão ───────────────────────────────────────────
+  // ── arrastar botão ──
   const [btnPos, setBtnPos]               = useState({ x: window.innerWidth - 60, y: window.innerHeight / 2 - 25 });
   const isDragging   = useRef(false);
   const dragStart    = useRef({ x:0, y:0 });
@@ -894,9 +889,6 @@ const mudarCorFundo = (hex) => {
     ganharXP('mudar_cor');
   }, [desbloquearConquista, ganharXP]);
 
-  // Aplica a cor principal do texto (--white) e deriva a cor secundária
-  // (--text-gray) misturando com preto ou branco, dependendo de qual lado
-  // a cor principal está (clara ou escura), pra manter contraste com ela.
   const aplicarCorTexto = useCallback((hexPrincipal) => {
     document.documentElement.style.setProperty('--white', hexPrincipal);
     const ehClaro = luminanciaRelativa(hexPrincipal) > 0.5;
@@ -907,10 +899,8 @@ const mudarCorFundo = (hex) => {
     try { localStorage.setItem('portfolio_cor_texto', hexPrincipal); } catch {}
   }, []);
 
-  // Modo automático: sempre que o fundo mudar, decide se o texto deve virar
-  // escuro (fundo claro detectado) ou claro (fundo escuro, o padrão).
   useEffect(() => {
-    if (!textoAuto) return; // usuário assumiu o controle manual da cor do texto
+    if (!textoAuto) return;
     const fundoEhClaro = luminanciaRelativa(corFundo) > 0.55;
     const corAutomatica = fundoEhClaro ? '#111111' : '#ffffff';
     aplicarCorTexto(corAutomatica);
@@ -922,9 +912,6 @@ const mudarCorFundo = (hex) => {
     try { localStorage.setItem('portfolio_texto_auto', String(textoAuto)); } catch {}
   }, [textoAuto]);
 
-  // Ao montar, se o usuário já tinha escolhido uma cor manual antes (modo
-  // automático desligado), reaplica ela — senão o efeito automático acima
-  // (que só roda quando textoAuto é true) nunca chegaria a setar a CSS var.
   useEffect(() => {
     if (!textoAuto && hexValido(corTextoInput)) {
       aplicarCorTexto(corTextoInput);
@@ -946,25 +933,11 @@ const mudarCorFundo = (hex) => {
   };
   const ativarCorTextoAutomatica = () => setTextoAuto(true);
 
-  // ── Google Fonts: instala qualquer fonte pelo nome (sem precisar de API key) ──
-  // IMPORTANTE: o endpoint fonts.googleapis.com/css2 não envia cabeçalhos CORS
-  // (Access-Control-Allow-Origin), então usar fetch() para "validar" a URL
-  // sempre falha, mesmo para fontes que existem — por isso a versão anterior
-  // dizia "não encontrada" pra tudo. A solução é injetar o <link> direto
-  // (isso não precisa de CORS) e depois checar via document.fonts se a
-  // fonte realmente registrou @font-face no documento.
-  //
-  // O Google Fonts também é sensível a maiúsculas/minúsculas no nome da
-  // família (ex: "BJCree", "JetBrains Mono" têm letras maiúsculas no meio
-  // da palavra). Por isso tentamos primeiro EXATAMENTE o que o usuário
-  // digitou (preserva casos como "BJCree" se digitado certo) e só depois,
-  // como fallback, uma versão "Title Case" (ajuda com "poppins" → "Poppins").
   const paraTituloFonte = (nome) =>
     nome.trim().split(/\s+/).filter(Boolean)
       .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
       .join(' ');
 
-  // tenta injetar+validar UM nome de fonte específico; retorna true/false
   const tentarCarregarFonte = useCallback(async (nomeFonte) => {
     const familia = nomeFonte.replace(/\s+/g, '+');
     const cssUrl = `https://fonts.googleapis.com/css2?family=${familia}:wght@400;600;700&display=swap`;
@@ -983,8 +956,8 @@ const mudarCorFundo = (hex) => {
     if (!linkJaExistia) {
       await new Promise((resolve) => {
         link.onload = resolve;
-        link.onerror = resolve; // resolve mesmo assim; quem decide é o document.fonts abaixo
-        setTimeout(resolve, 2500); // rede lenta não trava o app
+        link.onerror = resolve;
+        setTimeout(resolve, 2500);
       });
     }
 
@@ -1008,8 +981,6 @@ const mudarCorFundo = (hex) => {
     setSucessoFonte(false);
 
     try {
-      // candidatos de capitalização, em ordem: exatamente como digitado
-      // primeiro, depois Title Case como fallback (sem repetir se iguais)
       const candidatos = [entrada, paraTituloFonte(entrada)]
         .filter((v, i, arr) => v && arr.indexOf(v) === i);
 
@@ -1038,12 +1009,12 @@ const mudarCorFundo = (hex) => {
       desbloquearConquista("fonte_custom", "Tipógrafo Cyber: Instalou uma fonte do Google Fonts!", "🔤");
       ganharXP('mudar_cor');
       setTimeout(() => setSucessoFonte(false), 3000);
-    } catch (e) {
+    } catch {
       setErroFonte(idioma === 'pt' ? 'Fonte não encontrada no Google Fonts.' : 'Font not found on Google Fonts.');
     } finally {
       setCarregandoFonte(false);
     }
-  }, [desbloquearConquista, ganharXP, idioma]);
+  }, [desbloquearConquista, ganharXP, idioma, tentarCarregarFonte]);
 
   const removerFonteCustom = useCallback((valorFonte) => {
     setFontesCustom(prev => {
@@ -1054,9 +1025,6 @@ const mudarCorFundo = (hex) => {
     if (fonteSelecionada === valorFonte) setFonteSelecionada("'Poppins', sans-serif");
   }, [fonteSelecionada]);
 
-  // ── Google Fonts: catálogo completo (opcional, precisa de API key gratuita) ──
-  // Sem a chave, a instalação por nome continua funcionando normalmente;
-  // a chave só liga o autocomplete/sugestões enquanto o usuário digita.
   useEffect(() => {
     if (!googleApiKey) { setListaFontesGoogle([]); return; }
     let cancelado = false;
@@ -1089,13 +1057,11 @@ const mudarCorFundo = (hex) => {
     } catch {}
   }, []);
 
-  // ── callbacks estáveis para fechar os mini-jogos / easter eggs ──
-  // (evita recriar a função a cada render, o que reiniciava o jogo)
   const fecharSnake      = useCallback(() => setSnakeAberto(false), []);
   const fecharEnergetico = useCallback(() => setEnergeticoAtivo(false), []);
   const fecharCafe       = useCallback(() => setCafeAtivo(false), []);
 
-  // ── boot ─────────────────────────────────────────────────────
+  // ── boot ──
   useEffect(() => {
     const h = new Date().getHours();
     const logs = [
@@ -1112,12 +1078,12 @@ const mudarCorFundo = (hex) => {
     document.documentElement.style.setProperty('--primary-rgb', hexParaRgbString('#4b80e2'));
   }, []);
 
-  // ── contador de tempo ─────────────────────────────────────────
+  // ── tempo ──
   useEffect(() => {
     const iv = setInterval(() => {
       setTempoSegundos(s => {
         const novo = s + 1;
-        if (novo === 300) { // 5 min
+        if (novo === 300) {
           desbloquearConquista("tempo5min","Tá Curtindo! 5min no portfólio","⏱️");
         }
         return novo;
@@ -1126,18 +1092,17 @@ const mudarCorFundo = (hex) => {
     return () => clearInterval(iv);
   }, [desbloquearConquista]);
 
-  // ── XP 1000 ──────────────────────────────────────────────────
+  // ── XP 1000 ──
   useEffect(() => {
     if (xp >= 1000) desbloquearConquista("xp1000","Level Up! 1000 XP acumulados","⭐");
   }, [xp, desbloquearConquista]);
 
-  // ── Konami Code ───────────────────────────────────────────────
+  // ── Konami Code ──
   useEffect(() => {
     const onKey = (e) => {
       setKonamiSeq(prev => {
         const next = [...prev, e.key].slice(-KONAMI_CODE.length);
         if (next.join(',') === KONAMI_CODE.join(',')) {
-          // ativa efeito especial
           mudarCorPrincipal('#e5ff00');
           setCorHexInput('#e5ff00');
           setChuvaMatrix(true);
@@ -1154,7 +1119,7 @@ const mudarCorFundo = (hex) => {
     return () => window.removeEventListener('keydown', onKey);
   }, [mudarCorPrincipal, desbloquearConquista]);
 
-  // ── Intersection Observer (visitar seção) ─────────────────────
+  // ── Visitar seções ──
   useEffect(() => {
     const secs = document.querySelectorAll('section[id]');
     const visited = new Set();
@@ -1170,7 +1135,7 @@ const mudarCorFundo = (hex) => {
     return () => obs.disconnect();
   }, [ganharXP]);
 
-  // ── Salvar/restaurar tema no localStorage ──────────────────────
+  // ── Tema no localStorage ──
   useEffect(() => {
     try {
       const tema = localStorage.getItem('portfolio_tema');
@@ -1183,7 +1148,6 @@ const mudarCorFundo = (hex) => {
     } catch {}
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
 
   useEffect(() => {
     try {
@@ -1191,7 +1155,6 @@ const mudarCorFundo = (hex) => {
     } catch {}
   }, [corHexInput, fonteSelecionada, tamanhoFonte]);
 
-  // ── Compartilhamento de tema via URL ──────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const cor    = params.get('cor');
@@ -1210,7 +1173,7 @@ const mudarCorFundo = (hex) => {
     navigator.clipboard.writeText(url).then(() => setRetornoTerminal("🔗 Link do tema copiado!")).catch(() => setRetornoTerminal("Erro ao copiar link."));
   };
 
-  // ── Lo-fi mode ────────────────────────────────────────────────
+  // ── Lo-fi mode ──
   useEffect(() => {
     if (lofiMode) {
       document.documentElement.style.setProperty('--primary', '#b8a9c9');
@@ -1220,19 +1183,14 @@ const mudarCorFundo = (hex) => {
       setParticulasAtivas(false);
     } else {
       document.body.style.filter = '';
-      // restaura a cor de destaque e a cor de fundo escolhidas pelo usuário
-      // (antes isso resetava --bg-dark pra '#050505' toda vez que a cor
-      // de destaque mudava, pois corHexInput estava nas dependências)
       if (hexValido(corHexInput)) mudarCorPrincipal(corHexInput);
       document.documentElement.style.setProperty('--bg-dark', corFundo);
       setParticulasAtivas(true);
     }
-  // corHexInput e corFundo são lidos aqui só quando o lofiMode alterna,
-  // não precisamos re-rodar o efeito quando eles mudam sozinhos
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lofiMode]);
 
-  // ── Recruiter mode ────────────────────────────────────────────
+  // ── Recruiter mode ──
   useEffect(() => {
     if (recruiterMode) {
       setGlitchAtivo(false);
@@ -1247,7 +1205,6 @@ const mudarCorFundo = (hex) => {
     }
   }, [recruiterMode, mudarCorPrincipal]);
 
-  // ── glitch na borda ao scroll ─────────────────────────────────
   useEffect(() => {
     if (!glitchAtivo) return;
     let lastY = window.scrollY;
@@ -1263,7 +1220,7 @@ const mudarCorFundo = (hex) => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [glitchAtivo]);
 
-  // ── terminal ─────────────────────────────────────────────────
+  // ── Terminal ──
   const executarComando = (e) => {
     if (e.key !== 'Enter') return;
     const cmd = comandoInput.trim().toLowerCase();
@@ -1380,7 +1337,6 @@ const mudarCorFundo = (hex) => {
     }
   };
 
-  // ── segurança / BSOD ─────────────────────────────────────────
   const interagirComSeguranca = () => {
     setContadorGlitch(p => {
       const n = p + 1;
@@ -1400,7 +1356,6 @@ const mudarCorFundo = (hex) => {
     ganharXP('abrir_painel');
   };
 
-  // ── música ───────────────────────────────────────────────────
   const proximaMusica  = () => setMusicaAtualIndex(i => (i+1) % PLAYLIST.length);
   const musicaAnterior = () => setMusicaAtualIndex(i => (i-1+PLAYLIST.length) % PLAYLIST.length);
 
@@ -1415,7 +1370,6 @@ const mudarCorFundo = (hex) => {
     }
   }, [musicaAtiva, musicaAtualIndex, desbloquearConquista]);
 
-  // ── arrastar botão ───────────────────────────────────────────
   const iniciarArrastar = (e) => {
     isDragging.current = true; hasMoved.current = false;
     const cx = e.touches ? e.touches[0].clientX : e.clientX;
@@ -1442,7 +1396,6 @@ const mudarCorFundo = (hex) => {
     };
   }, [btnPos]);
 
-  // ── visitas ──────────────────────────────────────────────────
   useEffect(() => {
     try {
       const v = parseInt(localStorage.getItem('portfolio_visitas_user')||'0') + 1;
@@ -1451,7 +1404,6 @@ const mudarCorFundo = (hex) => {
     } catch { setContadorVisitas(3412); }
   }, []);
 
-  // ── mouse lanterna ───────────────────────────────────────────
   useEffect(() => {
     const root = document.documentElement;
     const mv = (e) => { root.style.setProperty('--mouse-x',`${e.clientX}px`); root.style.setProperty('--mouse-y',`${e.clientY}px`); };
@@ -1462,7 +1414,6 @@ const mudarCorFundo = (hex) => {
     return () => { window.removeEventListener('mousemove', mv); window.removeEventListener('touchmove', tm); window.removeEventListener('touchstart', tm); };
   }, []);
 
-  // ── efeitos CSS ──────────────────────────────────────────────
   useEffect(() => { document.body.classList.toggle('lanterna-ativa', lanternaAtiva); document.documentElement.style.setProperty('--lanterna-opacity', lanternaAtiva?'1':'0'); }, [lanternaAtiva]);
   useEffect(() => { document.body.classList.toggle('disable-animations', !animacoesAtivas); }, [animacoesAtivas]);
   useEffect(() => { document.documentElement.style.setProperty('--card-blur', `${nivelBlur}px`); }, [nivelBlur]);
@@ -1487,9 +1438,29 @@ const mudarCorFundo = (hex) => {
   const aoSelecionarCorFundoPicker = (hex) => { setCorFundoHexInput(hex); setCorFundoErro(false); mudarCorFundo(hex); };
   const aoDigitarCorFundoHex = (v) => { setCorFundoHexInput(v); if(hexValido(v)){setCorFundoErro(false);mudarCorFundo(v);}else{setCorFundoErro(true);} };
 
-  // ────────────────────────────────────────────────────────────
-  // RENDER
-  // ────────────────────────────────────────────────────────────
+  useEffect(() => { try { localStorage.setItem('portfolio_cursor_estilo', cursorEstilo); } catch {} }, [cursorEstilo]);
+  useEffect(() => { try { localStorage.setItem('portfolio_cursor_imagens', JSON.stringify(cursorImagens)); } catch {} }, [cursorImagens]);
+  useEffect(() => { try { localStorage.setItem('portfolio_cursor_imagem_id', cursorImagemId); } catch {} }, [cursorImagemId]);
+  useEffect(() => { try { localStorage.setItem('portfolio_cursor_tamanho', String(cursorTamanho)); } catch {} }, [cursorTamanho]);
+  useEffect(() => { if (hexValido(cursorCorInput)) { try { localStorage.setItem('portfolio_cursor_cor', cursorCorInput); } catch {} } }, [cursorCorInput]);
+
+  useEffect(() => { try { localStorage.setItem('portfolio_trail_estilo', trailEstilo); } catch {} }, [trailEstilo]);
+  useEffect(() => { try { localStorage.setItem('portfolio_trail_emoji', trailEmoji); } catch {} }, [trailEmoji]);
+  useEffect(() => { try { localStorage.setItem('portfolio_trail_intensidade', String(trailIntensidade)); } catch {} }, [trailIntensidade]);
+  useEffect(() => { try { localStorage.setItem('portfolio_trail_autoperf', String(trailAutoPerf)); } catch {} }, [trailAutoPerf]);
+  useEffect(() => { try { localStorage.setItem('portfolio_trail_cor_auto', String(trailCorAuto)); } catch {} }, [trailCorAuto]);
+  useEffect(() => { if (hexValido(trailCorInput)) { try { localStorage.setItem('portfolio_trail_cor', trailCorInput); } catch {} } }, [trailCorInput]);
+
+  const aoSelecionarCorCursor = (hex) => { setCursorCorInput(hex); setCursorCorErro(false); };
+  const aoDigitarCorCursor = (v) => { setCursorCorInput(v); setCursorCorErro(!hexValido(v)); };
+
+  const aoSelecionarCorTrail = (hex) => { setTrailCorInput(hex); setTrailCorErro(false); setTrailCorAuto(false); };
+  const aoDigitarCorTrail = (v) => { setTrailCorInput(v); setTrailCorErro(!hexValido(v)); setTrailCorAuto(false); };
+
+  const corRastroEfetiva = trailCorAuto
+    ? (hexValido(cursorCorInput) ? cursorCorInput : '#4b80e2')
+    : (hexValido(trailCorInput) ? trailCorInput : '#4b80e2');
+
   return (
     <>
       {carregando ? (
@@ -1501,7 +1472,6 @@ const mudarCorFundo = (hex) => {
         </div>
       ) : (
         <>
-          {/* ── overlays ── */}
           {telaAzul && (
             <div style={{ position:'fixed', inset:0, background:'#0000aa', color:'#fff', fontFamily:'monospace', padding:'40px', zIndex:100000, display:'flex', flexDirection:'column', justifyContent:'center' }}>
               <h1 style={{ fontSize:'3rem', marginBottom:'20px' }}>:( SYSTEM_ERROR</h1>
@@ -1522,7 +1492,6 @@ const mudarCorFundo = (hex) => {
           {energeticoAtivo && <EnergeticoEasterEgg onClose={fecharEnergetico} imagemLata={imagemMonster} />}
           {cafeAtivo && <CafeEasterEgg onClose={fecharCafe} />}
 
-          {/* ── conquista popup ── */}
           {conquistaAtiva && (
             <div className="achievement-popup">
               <div className="achievement-icon">{conquistaAtiva.icone}</div>
@@ -1533,17 +1502,32 @@ const mudarCorFundo = (hex) => {
             </div>
           )}
 
-          {/* ── elementos globais ── */}
           <BarraProgresso />
           <ToastBoasVindas />
           <BotaoTopo />
           {particulasAtivas && <ParticulasFundo />}
-          {cursorAtivo && <CursorNeon />}
-          {cursorTrailAtivo && <CursorTrail />}
+          {cursorAtivo && (
+            <CustomCursorPointer
+              estilo={cursorEstilo}
+              cor={hexValido(cursorCorInput) ? cursorCorInput : '#4b80e2'}
+              tamanho={cursorTamanho}
+              customImage={cursorImagemAtual}
+            />
+          )}
+          {cursorTrailAtivo && (
+            <CursorTrailCanvas
+              ativo={cursorTrailAtivo}
+              estilo={trailEstilo}
+              cor={corRastroEfetiva}
+              intensidade={trailIntensidade}
+              emoji={trailEmoji}
+              autoPerf={trailAutoPerf}
+              onPerfChange={aoMudarPerformance}
+            />
+          )}
           <audio ref={audioRef} src={PLAYLIST[musicaAtualIndex].arquivo} loop />
           <FiltrosDaltonismo />
 
-          {/* ── conteúdo principal ── */}
           <div onClick={interagirComSeguranca}><Header /></div>
           <About />
           <Projects />
@@ -1551,7 +1535,6 @@ const mudarCorFundo = (hex) => {
           <Contact />
           <Footer />
 
-          {/* ── botão flutuante ── */}
           <button
             className="botao-engrenagem"
             onMouseDown={iniciarArrastar}
@@ -1562,57 +1545,53 @@ const mudarCorFundo = (hex) => {
             {menuAberto ? "×" : "⚙️"}
           </button>
 
-          {/* ── painel lateral ── */}
           <div className={`GerenciadorCores ${menuAberto?"aberto":""}`}>
             <div className="conteudo-cores" style={{ display:'flex', flexDirection:'column', gap:'15px', maxHeight:'85vh', overflowY:'auto' }}>
 
-              {/* Seletor de Cor de Fundo */}
-<div style={{ background:'rgba(0,0,0,0.4)', padding:'10px', borderRadius:'8px', border:'1px solid var(--border-neon)' }}>
-  <span style={{ fontSize:'0.7rem', color:'var(--text-gray)', letterSpacing:'1px', textTransform:'uppercase', display:'block', marginBottom:'8px', textAlign:'center' }}>
-    Cor de Fundo
-  </span>
-  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-    {CORES_FUNDO_PRE_PRONTAS.map((cor) => (
-      <button
-        key={cor.hex}
-        title={cor.nome}
-        onClick={() => { setCorFundoHexInput(cor.hex); setCorFundoErro(false); mudarCorFundo(cor.hex); }}
-        style={{
-          width: '26px',
-          height: '26px',
-          borderRadius: '50%',
-          backgroundColor: cor.hex,
-          border: corFundo === cor.hex ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.2)',
-          boxShadow: corFundo === cor.hex ? '0 0 8px var(--primary)' : 'none',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease'
-        }}
-      />
-    ))}
-  </div>
+              <div style={{ background:'rgba(0,0,0,0.4)', padding:'10px', borderRadius:'8px', border:'1px solid var(--border-neon)' }}>
+                <span style={{ fontSize:'0.7rem', color:'var(--text-gray)', letterSpacing:'1px', textTransform:'uppercase', display:'block', marginBottom:'8px', textAlign:'center' }}>
+                  Cor de Fundo
+                </span>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {CORES_FUNDO_PRE_PRONTAS.map((cor) => (
+                    <button
+                      key={cor.hex}
+                      title={cor.nome}
+                      onClick={() => { setCorFundoHexInput(cor.hex); setCorFundoErro(false); mudarCorFundo(cor.hex); }}
+                      style={{
+                        width: '26px',
+                        height: '26px',
+                        borderRadius: '50%',
+                        backgroundColor: cor.hex,
+                        border: corFundo === cor.hex ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.2)',
+                        boxShadow: corFundo === cor.hex ? '0 0 8px var(--primary)' : 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    />
+                  ))}
+                </div>
 
-  {/* roleta de cores + hex, mesmo sistema usado na Cor de Destaque */}
-  <div style={{ display:'flex', alignItems:'center', gap:'10px', marginTop:'10px' }}>
-    <input
-      type="color"
-      value={hexValido(corFundoHexInput) && corFundoHexInput.length===7 ? corFundoHexInput : '#050505'}
-      onChange={(e) => aoSelecionarCorFundoPicker(e.target.value)}
-      style={{ width:'42px', height:'42px', cursor:'pointer', background:'transparent', border:'1px solid var(--border-neon)', borderRadius:'8px' }}
-    />
-    <input
-      type="text"
-      value={corFundoHexInput}
-      onChange={(e) => aoDigitarCorFundoHex(e.target.value)}
-      maxLength={7}
-      style={{ width:'100%', padding:'10px', background:'#0d0d0d', color:'#fff', border:'1px solid #222', borderRadius:'8px', fontFamily:"'Fira Code',monospace" }}
-    />
-  </div>
-  {corFundoErro && <span style={{ color:'#ff4a4a', fontSize:'0.75rem' }}>{t.corHexInvalida}</span>}
-</div>
+                <div style={{ display:'flex', alignItems:'center', gap:'10px', marginTop:'10px' }}>
+                  <input
+                    type="color"
+                    value={hexValido(corFundoHexInput) && corFundoHexInput.length===7 ? corFundoHexInput : '#050505'}
+                    onChange={(e) => aoSelecionarCorFundoPicker(e.target.value)}
+                    style={{ width:'42px', height:'42px', cursor:'pointer', background:'transparent', border:'1px solid var(--border-neon)', borderRadius:'8px' }}
+                  />
+                  <input
+                    type="text"
+                    value={corFundoHexInput}
+                    onChange={(e) => aoDigitarCorFundoHex(e.target.value)}
+                    maxLength={7}
+                    style={{ width:'100%', padding:'10px', background:'#0d0d0d', color:'#fff', border:'1px solid #222', borderRadius:'8px', fontFamily:"'Fira Code',monospace" }}
+                  />
+                </div>
+                {corFundoErro && <span style={{ color:'#ff4a4a', fontSize:'0.75rem' }}>{t.corHexInvalida}</span>}
+              </div>
 
               <div style={{ textAlign:'center' }}><Clock /></div>
 
-              {/* sistema ID */}
               <div style={{ background:'rgba(0,0,0,0.4)', padding:'10px', borderRadius:'8px', border:'1px solid var(--border-neon)', textAlign:'center' }}>
                 <span style={{ fontSize:'0.7rem', color:'var(--text-gray)', letterSpacing:'1px', textTransform:'uppercase', display:'block', marginBottom:'4px' }}>{t.sistemaConectado}</span>
                 <div style={{ fontFamily:"'Fira Code',monospace", color:'var(--primary)', fontWeight:'bold', fontSize:'1.1rem', letterSpacing:'2px' }}>
@@ -1620,7 +1599,6 @@ const mudarCorFundo = (hex) => {
                 </div>
               </div>
 
-              {/* ── XP + Tempo ── */}
               <div style={{ background:'rgba(0,0,0,0.3)', padding:'10px', borderRadius:'8px', border:'1px solid var(--border-neon)' }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
                   <span style={{ fontSize:'0.75rem', color:'var(--text-gray)' }}>⭐ {t.xpLabel} — Lv.{xpLevel}</span>
@@ -1635,18 +1613,15 @@ const mudarCorFundo = (hex) => {
                 </div>
               </div>
 
-              {/* terminal */}
               <div className="mini-terminal-container">
                 <input type="text" className="terminal-input" value={comandoInput} onChange={(e) => setComandoInput(e.target.value)} onKeyDown={executarComando} placeholder={t.terminalPlaceholder} />
                 {retornoTerminal && <div className="terminal-return" style={{ whiteSpace:'pre-line', fontSize:'0.8rem', marginTop:'6px', color:'var(--primary)' }}>{retornoTerminal}</div>}
               </div>
 
-              {/* botão compartilhar tema */}
               <button onClick={copiarLinkTema} style={{ ...styles.fontBtn, border:'1px solid var(--border-neon)', color:'var(--primary)', fontSize:'0.78rem' }}>
                 🔗 Compartilhar Tema
               </button>
 
-              {/* conquistas */}
               <div className="secao-conquistas-painel">
                 <h4 style={{ margin:0 }}>{t.conquistasTitulo} ({conquistasDesbloqueadas.length}/{LISTA_CONQUISTAS.length})</h4>
                 <div className="lista-conquistas-grid">
@@ -1669,12 +1644,10 @@ const mudarCorFundo = (hex) => {
 
               <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
 
-              {/* GitHub Feed */}
               <GitHubFeed />
 
               <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
 
-              {/* idioma */}
               <div>
                 <h4>{t.idiomaLabel}</h4>
                 <div style={{ display:'flex', gap:'6px', marginTop:'8px' }}>
@@ -1683,7 +1656,6 @@ const mudarCorFundo = (hex) => {
                 </div>
               </div>
 
-              {/* cor */}
               <div>
                 <h4>{t.corDestaque}</h4>
                 {!mestreDoSistema ? (
@@ -1711,7 +1683,6 @@ const mudarCorFundo = (hex) => {
 
               <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
 
-              {/* cor do texto — corrige letras que não mudavam e travavam brancas em fundos claros */}
               <div>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                   <h4 style={{ margin:0 }}>{t.corTexto}</h4>
@@ -1757,7 +1728,6 @@ const mudarCorFundo = (hex) => {
 
               <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
 
-              {/* modo daltonismo */}
               <div>
                 <h4>{t.daltonismoLabel}</h4>
                 <select
@@ -1781,7 +1751,6 @@ const mudarCorFundo = (hex) => {
 
               <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
 
-              {/* tipografia */}
               <div>
                 <h4>{t.tipografia}</h4>
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px', marginTop:'8px' }}>
@@ -1814,7 +1783,6 @@ const mudarCorFundo = (hex) => {
                   </div>
                 )}
 
-                {/* busca/instalação de fontes do Google Fonts */}
                 <div style={{ marginTop:'14px' }}>
                   <span style={{ fontSize:'0.8rem', color:'#a9a9a9', display:'block', marginBottom:'6px' }}>{t.buscarFonteLabel}</span>
                   <div style={{ display:'flex', gap:'6px', position:'relative' }}>
@@ -1864,7 +1832,6 @@ const mudarCorFundo = (hex) => {
                 </div>
               </div>
 
-              {/* tamanho fonte */}
               <div>
                 <div style={styles.controlRow}>
                   <span>{t.tamanhoFonteLabel}</span>
@@ -1873,7 +1840,6 @@ const mudarCorFundo = (hex) => {
                 <input type="range" min="12" max="24" value={tamanhoFonte} onChange={(e)=>setTamanhoFonte(Number(e.target.value))} style={{ width:'100%', accentColor:'var(--primary)' }} />
               </div>
 
-              {/* blur */}
               <div>
                 <div style={styles.controlRow}>
                   <span>{t.opacidadeVidro}</span>
@@ -1884,19 +1850,15 @@ const mudarCorFundo = (hex) => {
 
               <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
 
-              {/* efeitos */}
               <div>
                 <h4 style={{ marginBottom:'10px' }}>{t.efeitosSistema}</h4>
                 <div style={styles.controlRow}><span>{t.lanterna}</span><input type="checkbox" checked={lanternaAtiva} onChange={(e)=>setLanternaAtiva(e.target.checked)} style={styles.checkbox}/></div>
                 <div style={styles.controlRow}><span>{t.animacoes}</span><input type="checkbox" checked={animacoesAtivas} onChange={(e)=>setAnimacoesAtivas(e.target.checked)} style={styles.checkbox}/></div>
                 <div style={styles.controlRow}><span>{t.partculas}</span><input type="checkbox" checked={particulasAtivas} onChange={(e)=>setParticulasAtivas(e.target.checked)} style={styles.checkbox}/></div>
                 <div style={styles.controlRow}><span>{t.glitch}</span><input type="checkbox" checked={glitchAtivo} onChange={(e)=>setGlitchAtivo(e.target.checked)} style={styles.checkbox}/></div>
-                <div style={styles.controlRow}><span>{t.cursorCustom}</span><input type="checkbox" checked={cursorAtivo} onChange={(e)=>setCursorAtivo(e.target.checked)} style={styles.checkbox}/></div>
-                <div style={styles.controlRow}><span>Rastro de Cursor</span><input type="checkbox" checked={cursorTrailAtivo} onChange={(e)=>setCursorTrailAtivo(e.target.checked)} style={styles.checkbox}/></div>
                 <div style={styles.controlRow}><span>Modo Lo-Fi</span><input type="checkbox" checked={lofiMode} onChange={(e)=>setLofiMode(e.target.checked)} style={styles.checkbox}/></div>
                 <div style={styles.controlRow}><span>Modo Recrutador</span><input type="checkbox" checked={recruiterMode} onChange={(e)=>setRecruiterMode(e.target.checked)} style={styles.checkbox}/></div>
 
-                {/* música */}
                 <div style={{ ...styles.controlRow, flexDirection:'column', alignItems:'stretch', gap:'8px' }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                     <span>{t.trilhaSonora}</span>
@@ -1909,6 +1871,251 @@ const mudarCorFundo = (hex) => {
                       <button onClick={proximaMusica}  style={{ background:'none', border:'none', color:'#fff', cursor:'pointer' }}>⏭</button>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.08)' }} />
+
+              <div>
+                <h4 style={{ marginBottom:'4px' }}>🖱️ Cursor & Rastro</h4>
+                <span style={{ fontSize:'0.72rem', color:'#888', display:'block', marginBottom:'10px' }}>
+                  Personalize a forma, cor e o rastro do cursor.
+                </span>
+
+                <div style={{
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  height:'56px', background:'rgba(0,0,0,0.4)', borderRadius:'8px',
+                  border:'1px dashed var(--border-neon)', marginBottom:'12px'
+                }}>
+                  <FormaCursor
+                    estilo={cursorEstilo}
+                    cor={hexValido(cursorCorInput) ? cursorCorInput : '#4b80e2'}
+                    tamanho={Math.min(cursorTamanho, 40)}
+                    customImage={cursorImagemAtual}
+                  />
+                </div>
+
+                <div style={styles.controlRow}>
+                  <span>Ativar cursor customizado</span>
+                  <input type="checkbox" checked={cursorAtivo} onChange={(e)=>setCursorAtivo(e.target.checked)} style={styles.checkbox}/>
+                </div>
+
+                <div style={{ opacity: cursorAtivo ? 1 : 0.4, pointerEvents: cursorAtivo ? 'auto' : 'none', transition:'opacity 0.2s' }}>
+                  <span style={{ fontSize:'0.75rem', color:'#a9a9a9', display:'block', margin:'6px 0' }}>Forma</span>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:'6px' }}>
+                    {CURSOR_ESTILOS.map(op => (
+                      <button
+                        key={op.id}
+                        onClick={() => setCursorEstilo(op.id)}
+                        title={op.nome}
+                        style={{
+                          display:'flex', flexDirection:'column', alignItems:'center', gap:'4px',
+                          padding:'8px 4px', background:'#0d0d0d', borderRadius:'8px', cursor:'pointer',
+                          border: cursorEstilo === op.id ? '1px solid var(--primary)' : '1px solid #222',
+                        }}
+                      >
+                        <FormaCursor estilo={op.id} cor={cursorEstilo === op.id ? (hexValido(cursorCorInput) ? cursorCorInput : '#4b80e2') : '#888'} tamanho={20} customImage={cursorImagemAtual} />
+                        <span style={{ fontSize:'0.62rem', color:'#a9a9a9' }}>{op.nome}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <span style={{ fontSize:'0.75rem', color:'#a9a9a9', display:'block', margin:'12px 0 6px' }}>🖼️ Imagem importada</span>
+                  <div style={{ background:'rgba(0,0,0,0.4)', border:'1px solid var(--border-neon)', borderRadius:'8px', padding:'10px' }}>
+                    <input
+                      ref={inputImagemCursorRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={importarImagensCursor}
+                      style={{ display:'none' }}
+                    />
+                    <button
+                      onClick={() => inputImagemCursorRef.current?.click()}
+                      style={{ width:'100%', padding:'8px', background:'#0d0d0d', color:'#fff', border:'1px dashed var(--primary)', borderRadius:'8px', cursor:'pointer', fontSize:'0.78rem' }}
+                    >
+                      + Importar imagem (PNG, SVG, GIF — máx. 500KB)
+                    </button>
+
+                    {cursorImagemErro && (
+                      <span style={{ color:'#ff4a4a', fontSize:'0.72rem', display:'block', marginTop:'6px' }}>{cursorImagemErro}</span>
+                    )}
+
+                    {cursorImagens.length === 0 ? (
+                      <span style={{ fontSize:'0.7rem', color:'#666', display:'block', marginTop:'8px', textAlign:'center' }}>
+                        Nenhuma imagem importada ainda.
+                      </span>
+                    ) : (
+                      <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:'6px', marginTop:'10px' }}>
+                        {cursorImagens.map(img => {
+                          const selecionada = cursorImagemId === img.id && cursorEstilo === 'custom-image';
+                          return (
+                            <div
+                              key={img.id}
+                              title={img.nome}
+                              style={{ position:'relative', background:'#0d0d0d', borderRadius:'8px', padding:'8px 4px', border: selecionada ? '1px solid var(--primary)' : '1px solid #222' }}
+                            >
+                              <button
+                                onClick={() => { setCursorImagemId(img.id); setCursorEstilo('custom-image'); }}
+                                style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'4px', width:'100%', background:'none', border:'none', cursor:'pointer', padding:0 }}
+                              >
+                                <img src={img.dados} alt={img.nome} style={{ width:'26px', height:'26px', objectFit:'contain' }} />
+                                <span style={{ fontSize:'0.58rem', color:'#a9a9a9', maxWidth:'100%', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{img.nome}</span>
+                              </button>
+                              <button
+                                onClick={() => removerImagemCursor(img.id)}
+                                title="Remover imagem"
+                                style={{ position:'absolute', top:'-6px', right:'-6px', width:'18px', height:'18px', lineHeight:'16px', textAlign:'center', background:'#1a1a1a', color:'#ff4a4a', border:'1px solid #ff4a4a', borderRadius:'50%', cursor:'pointer', fontSize:'0.7rem', padding:0 }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  <span style={{ fontSize:'0.75rem', color:'#a9a9a9', display:'block', margin:'12px 0 6px' }}>Cor do cursor</span>
+                  <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                    <input
+                      type="color"
+                      value={hexValido(cursorCorInput) && cursorCorInput.length===7 ? cursorCorInput : '#4b80e2'}
+                      onChange={(e) => aoSelecionarCorCursor(e.target.value)}
+                      style={{ width:'42px', height:'42px', cursor:'pointer', background:'transparent', border:'1px solid var(--border-neon)', borderRadius:'8px' }}
+                    />
+                    <input
+                      type="text"
+                      value={cursorCorInput}
+                      onChange={(e) => aoDigitarCorCursor(e.target.value)}
+                      maxLength={7}
+                      style={{ width:'100%', padding:'10px', background:'#0d0d0d', color:'#fff', border:'1px solid #222', borderRadius:'8px', fontFamily:"'Fira Code',monospace" }}
+                    />
+                  </div>
+                  {cursorCorErro && <span style={{ color:'#ff4a4a', fontSize:'0.75rem' }}>{t.corHexInvalida}</span>}
+
+                  <div style={{ ...styles.controlRow, marginTop:'12px' }}>
+                    <span>Tamanho</span>
+                    <span style={{ fontFamily:"'Fira Code',monospace", color:'var(--primary)' }}>{cursorTamanho}px</span>
+                  </div>
+                  <input type="range" min="16" max="48" value={cursorTamanho} onChange={(e)=>setCursorTamanho(Number(e.target.value))} style={{ width:'100%', accentColor:'var(--primary)' }} />
+                </div>
+
+                <hr style={{ border:0, borderTop:'1px solid rgba(255,255,255,0.06)', margin:'14px 0' }} />
+
+                <div style={styles.controlRow}>
+                  <span>Ativar rastro (trail)</span>
+                  <input type="checkbox" checked={cursorTrailAtivo} onChange={(e)=>setCursorTrailAtivo(e.target.checked)} style={styles.checkbox}/>
+                </div>
+
+                <div style={{ opacity: cursorTrailAtivo ? 1 : 0.4, pointerEvents: cursorTrailAtivo ? 'auto' : 'none', transition:'opacity 0.2s' }}>
+                  <span style={{ fontSize:'0.75rem', color:'#a9a9a9', display:'block', margin:'6px 0' }}>Estilo do rastro</span>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px' }}>
+                    {TRAIL_ESTILOS.filter(op => op.id !== 'none').map(op => (
+                      <button
+                        key={op.id}
+                        onClick={() => setTrailEstilo(op.id)}
+                        style={{ ...styles.fontBtn, fontSize:'0.75rem', border: trailEstilo === op.id ? '1px solid var(--primary)' : '1px solid #222' }}
+                      >
+                        {op.nome}
+                      </button>
+                    ))}
+                  </div>
+
+                  {trailEstilo === 'emoji' && (
+                    <div style={{ marginTop:'10px' }}>
+                      <span style={{ fontSize:'0.75rem', color:'#a9a9a9', display:'block', marginBottom:'6px' }}>Emoji do rastro</span>
+                      <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', marginBottom:'6px' }}>
+                        {['⭐','🔥','💖','🌸','⚡','🍀','💀','🎵','🚀','🐍','☕','👾'].map(em => (
+                          <button
+                            key={em}
+                            onClick={() => setTrailEmoji(em)}
+                            style={{ ...styles.fontBtn, padding:'4px 8px', fontSize:'1rem', border: trailEmoji === em ? '1px solid var(--primary)' : '1px solid #222' }}
+                          >
+                            {em}
+                          </button>
+                        ))}
+                      </div>
+                      <input
+                        type="text"
+                        maxLength={4}
+                        value={trailEmoji}
+                        onChange={(e) => setTrailEmoji(e.target.value || '⭐')}
+                        placeholder="Cole qualquer emoji"
+                        style={{ width:'100%', padding:'8px', background:'#0d0d0d', color:'#fff', border:'1px solid #222', borderRadius:'8px', textAlign:'center' }}
+                      />
+                    </div>
+                  )}
+
+                  <span style={{ fontSize:'0.75rem', color:'#a9a9a9', display:'block', margin:'12px 0 6px' }}>Cor do rastro</span>
+                  <div style={{ display:'flex', gap:'6px', marginBottom:'8px' }}>
+                    <button
+                      onClick={() => setTrailCorAuto(true)}
+                      style={{ ...styles.fontBtn, fontSize:'0.72rem', border: trailCorAuto ? '1px solid var(--primary)' : '1px solid #222' }}
+                    >
+                      Seguir cor do cursor
+                    </button>
+                    <button
+                      onClick={() => setTrailCorAuto(false)}
+                      style={{ ...styles.fontBtn, fontSize:'0.72rem', border: !trailCorAuto ? '1px solid var(--primary)' : '1px solid #222' }}
+                    >
+                      Manual
+                    </button>
+                  </div>
+                  {!trailCorAuto && (
+                    <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                      <input
+                        type="color"
+                        value={hexValido(trailCorInput) && trailCorInput.length===7 ? trailCorInput : '#4b80e2'}
+                        onChange={(e) => aoSelecionarCorTrail(e.target.value)}
+                        style={{ width:'42px', height:'42px', cursor:'pointer', background:'transparent', border:'1px solid var(--border-neon)', borderRadius:'8px' }}
+                      />
+                      <input
+                        type="text"
+                        value={trailCorInput}
+                        onChange={(e) => aoDigitarCorTrail(e.target.value)}
+                        maxLength={7}
+                        style={{ width:'100%', padding:'10px', background:'#0d0d0d', color:'#fff', border:'1px solid #222', borderRadius:'8px', fontFamily:"'Fira Code',monospace" }}
+                      />
+                    </div>
+                  )}
+                  {trailCorErro && <span style={{ color:'#ff4a4a', fontSize:'0.75rem' }}>{t.corHexInvalida}</span>}
+
+                  <div style={{ ...styles.controlRow, marginTop:'12px' }}>
+                    <span>Intensidade</span>
+                    <span style={{ fontFamily:"'Fira Code',monospace", color:'var(--primary)' }}>{trailIntensidade}</span>
+                  </div>
+                  <input type="range" min="1" max="10" value={trailIntensidade} onChange={(e)=>setTrailIntensidade(Number(e.target.value))} style={{ width:'100%', accentColor:'var(--primary)' }} />
+
+                  {/* ⚡ MODO PERFORMANCE AUTOMÁTICO */}
+                  <div style={{ ...styles.controlRow, marginTop:'16px' }}>
+                    <span>⚡ Performance automática</span>
+                    <input
+                      type="checkbox"
+                      checked={trailAutoPerf}
+                      onChange={(e)=>setTrailAutoPerf(e.target.checked)}
+                      style={styles.checkbox}
+                    />
+                  </div>
+                  <p style={{ fontSize:'0.72rem', color:'#7a7a7a', marginTop:'-4px', lineHeight:1.5 }}>
+                    Mede o FPS em tempo real e reduz automaticamente a quantidade de partículas
+                    quando o site começa a travar (recomendado para os rastros de emoji e fogo).
+                  </p>
+                  {trailAutoPerf && (
+                    <div style={{
+                      display:'flex', justifyContent:'space-between', alignItems:'center',
+                      marginTop:'8px', padding:'8px 10px', borderRadius:'8px',
+                      background:'#0d0d0d', border:'1px solid #222',
+                      fontFamily:"'Fira Code',monospace", fontSize:'0.72rem'
+                    }}>
+                      <span style={{ color: trailPerfInfo.fps < 40 ? '#ff9f43' : 'var(--primary)' }}>
+                        {trailPerfInfo.fps} FPS
+                      </span>
+                      <span style={{ color:'#7a7a7a' }}>
+                        Qualidade: {Math.round(trailPerfInfo.qualidade * 100)}%
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1924,4 +2131,3 @@ const styles = {
   checkbox:   { cursor:'pointer', accentColor:'var(--primary)', width:'16px', height:'16px' },
   fontBtn:    { flex:1, padding:'6px', background:'#0d0d0d', color:'#fff', borderRadius:'6px', cursor:'pointer', fontSize:'0.85rem', textAlign:'center' }
 };
-

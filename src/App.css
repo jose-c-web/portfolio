@@ -929,34 +929,23 @@ body.disable-animations .certificate-mini-card {
   100% { transform: scaleY(1.3); }
 }
 
-/* ================= IDEIA 5: CURSOR NEON CUSTOMIZADO ================= */
-.custom-neon-cursor {
-  width: 12px;
-  height: 12px;
-  background-color: var(--primary);
-  border-radius: 50%;
-  position: fixed;
-  transform: translate(-50%, -50%);
+/* ================= CURSOR CUSTOMIZÁVEL (forma, cor, tamanho) ================= */
+.custom-cursor-wrapper {
   pointer-events: none;
-  z-index: 9999;
-  box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
-  transition: width 0.2s, height 0.2s, background-color 0.2s;
-}
-.custom-neon-cursor.cursor-expandido {
-  width: 25px;
-  height: 25px;
-  background-color: transparent;
-  border: 2px solid var(--primary);
-  box-shadow: 0 0 15px var(--primary);
 }
 /* Oculta cursor padrão quando o customizado estiver ativo */
-body:has(.custom-neon-cursor) {
+body:has(.custom-cursor-wrapper) {
   cursor: none !important;
 }
-body:has(.custom-neon-cursor) a, 
-body:has(.custom-neon-cursor) button,
-body:has(.custom-neon-cursor) input {
+body:has(.custom-cursor-wrapper) a,
+body:has(.custom-cursor-wrapper) button,
+body:has(.custom-cursor-wrapper) input,
+body:has(.custom-cursor-wrapper) textarea,
+body:has(.custom-cursor-wrapper) select {
   cursor: none !important;
+}
+.cursor-trail-canvas {
+  mix-blend-mode: screen;
 }
 
 /* ================= IDEIA 3: ANIMAÇÃO CYBERPUNK GLITCH ================= */
@@ -1278,7 +1267,8 @@ body.lanterna-ativa .certificate-mini-card:hover::after {
   .footer-tagline { font-size: 0.85rem; }
   .certificate-mini-grid { grid-template-columns: 1fr; padding: 0 1.5rem; gap: 1rem; } 
 
-  .custom-neon-cursor {
+  .custom-cursor-wrapper,
+  .cursor-trail-canvas {
     display: none !important;
   }
   body, body * {
@@ -1739,7 +1729,8 @@ body.recruiter-mode .certificate-mini-card {
   border-color: rgba(10, 102, 194, 0.3) !important;
 }
 body.recruiter-mode .achievement-popup,
-body.recruiter-mode .cursor-trail-particle {
+body.recruiter-mode .cursor-trail-particle,
+body.recruiter-mode .cursor-trail-canvas {
   display: none !important;
 }
 
