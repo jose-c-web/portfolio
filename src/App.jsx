@@ -16,10 +16,10 @@ import track3 from './assets/Musics/fenix(nova).mp3';
 
 import imagemMonster from './assets/IMG/monster.png';
 
-const PLAYLIST_INICIAL = [
-  { id: 0, nome: "Track 01 - Perdas", arquivo: track1, custom: false },
-  { id: 1, nome: "Track 02 - Dan (Sukuna)", arquivo: track2, custom: false },
-  { id: 2, nome: "Track 03 - Fênix (Nova)", arquivo: track3, custom: false },
+const PLAYLIST = [
+  { id: 0, nome: "Track 01 - Perdas", arquivo: track1 },
+  { id: 1, nome: "Track 02 - Dan (Sukuna)", arquivo: track2 },
+  { id: 2, nome: "Track 03 - Fênix (Nova)", arquivo: track3 },
 ];
 
 const LISTA_CONQUISTAS = [
@@ -110,9 +110,6 @@ const traducoes = {
     corTextoAutoBadge: "🌙 Dark-mode automático ativado (cor clara detectada)",
     corTextoAutoBotao: "Usar automático",
     corTextoManualBotao: "Manual",
-    uploadMusicaTitulo: "🎵 Importar Músicas Próprias",
-    uploadMusicaSub: "Suba seus arquivos de áudio (.mp3, .wav, .ogg) para tocar no player do site.",
-    uploadMusicaBotao: "+ Adicionar Músicas",
   },
   en: {
     sistemaConectado: "System Connected",
@@ -159,9 +156,6 @@ const traducoes = {
     corTextoAutoBadge: "🌙 Automatic dark-mode enabled (light color detected)",
     corTextoAutoBotao: "Use automatic",
     corTextoManualBotao: "Manual",
-    uploadMusicaTitulo: "🎵 Upload Own Tracks",
-    uploadMusicaSub: "Upload audio files (.mp3, .wav, .ogg) to play on the site player.",
-    uploadMusicaBotao: "+ Add Audio Files",
   }
 };
 
@@ -806,49 +800,8 @@ export default function App() {
   const [trailIntensidade, setTrailIntensidade] = useState(() => {
     try { return parseInt(localStorage.getItem('portfolio_trail_intensidade') || '5'); } catch { return 5; }
   });
-  
-  // ── Músicas & Upload Customizado ──
-  const [playlist, setPlaylist]           = useState(PLAYLIST_INICIAL);
   const [musicaAtiva, setMusicaAtiva]     = useState(false);
   const [musicaAtualIndex, setMusicaAtualIndex] = useState(0);
-  const inputAudioRef = useRef(null);
-
-  const subirAudioCustom = (e) => {
-    const arquivos = Array.from(e.target.files || []);
-    if (!arquivos.length) return;
-
-    const novasFaixas = [];
-    arquivos.forEach((arquivo) => {
-      if (arquivo.type.startsWith('audio/')) {
-        const urlAudio = URL.createObjectURL(arquivo);
-        novasFaixas.push({
-          id: Date.now() + Math.random(),
-          nome: arquivo.name.replace(/\.[^/.]+$/, ""),
-          arquivo: urlAudio,
-          custom: true
-        });
-      }
-    });
-
-    if (novasFaixas.length > 0) {
-      setPlaylist(prev => [...prev, ...novasFaixas]);
-      setMusicaAtualIndex(playlist.length); // muda direto para a 1ª musica enviada
-      setMusicaAtiva(true);
-    }
-    e.target.value = '';
-  };
-
-  const removerMusicaCustom = (id) => {
-    setPlaylist(prev => {
-      const idxRemovido = prev.findIndex(m => m.id === id);
-      const nova = prev.filter(m => m.id !== id);
-      if (musicaAtualIndex >= nova.length) {
-        setMusicaAtualIndex(Math.max(0, nova.length - 1));
-      }
-      return nova;
-    });
-  };
-
   const [comandoInput, setComandoInput]   = useState('');
   const [retornoTerminal, setRetornoTerminal]   = useState('');
   const [linkedinMode, setLinkedinMode]   = useState(false);
@@ -1058,10 +1011,11 @@ export default function App() {
       setTimeout(() => setSucessoFonte(false), 3000);
     } catch {
       setErroFonte(idioma === 'pt' ? 'Fonte não encontrada no Google Fonts.' : 'Font not found on Google Fonts.');
-    } finally { // 👈 Corrigido de 'fontally' para 'finally'
+    } finally {
       setCarregandoFonte(false);
     }
   }, [desbloquearConquista, ganharXP, idioma, tentarCarregarFonte]);
+
   const removerFonteCustom = useCallback((valorFonte) => {
     setFontesCustom(prev => {
       const nova = prev.filter(f => f.valor !== valorFonte);
@@ -1402,8 +1356,8 @@ export default function App() {
     ganharXP('abrir_painel');
   };
 
-  const proximaMusica  = () => setMusicaAtualIndex(i => (i+1) % playlist.length);
-  const musicaAnterior = () => setMusicaAtualIndex(i => (i-1+playlist.length) % playlist.length);
+  const proximaMusica  = () => setMusicaAtualIndex(i => (i+1) % PLAYLIST.length);
+  const musicaAnterior = () => setMusicaAtualIndex(i => (i-1+PLAYLIST.length) % PLAYLIST.length);
 
   useEffect(() => {
     if (!audioRef.current) return;
@@ -1414,7 +1368,7 @@ export default function App() {
     } else {
       audioRef.current.pause();
     }
-  }, [musicaAtiva, musicaAtualIndex, playlist, desbloquearConquista]);
+  }, [musicaAtiva, musicaAtualIndex, desbloquearConquista]);
 
   const iniciarArrastar = (e) => {
     isDragging.current = true; hasMoved.current = false;
@@ -1571,7 +1525,7 @@ export default function App() {
               onPerfChange={aoMudarPerformance}
             />
           )}
-          <audio ref={audioRef} src={playlist[musicaAtualIndex]?.arquivo} loop />
+          <audio ref={audioRef} src={PLAYLIST[musicaAtualIndex].arquivo} loop />
           <FiltrosDaltonismo />
 
           <div onClick={interagirComSeguranca}><Header /></div>
@@ -1667,64 +1621,6 @@ export default function App() {
               <button onClick={copiarLinkTema} style={{ ...styles.fontBtn, border:'1px solid var(--border-neon)', color:'var(--primary)', fontSize:'0.78rem' }}>
                 🔗 Compartilhar Tema
               </button>
-
-              {/* 🎧 ABA: UPLOAD DE MÚSICAS PRÓPRIAS */}
-              <div style={{ background:'rgba(0,0,0,0.4)', padding:'12px', borderRadius:'8px', border:'1px solid var(--border-neon)' }}>
-                <h4 style={{ margin: 0, color: 'var(--primary)', fontSize: '0.9rem' }}>{t.uploadMusicaTitulo}</h4>
-                <p style={{ fontSize: '0.72rem', color: '#888', margin: '4px 0 10px 0' }}>{t.uploadMusicaSub}</p>
-                
-                <input
-                  ref={inputAudioRef}
-                  type="file"
-                  accept="audio/*"
-                  multiple
-                  onChange={subirAudioCustom}
-                  style={{ display: 'none' }}
-                />
-
-                <button
-                  onClick={() => inputAudioRef.current?.click()}
-                  style={{ ...styles.fontBtn, width: '100%', padding: '8px', border: '1px dashed var(--primary)', color: 'var(--primary)', fontSize: '0.8rem' }}
-                >
-                  {t.uploadMusicaBotao}
-                </button>
-
-                <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {playlist.map((faixa, index) => (
-                    <div
-                      key={faixa.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '6px 8px',
-                        borderRadius: '6px',
-                        background: musicaAtualIndex === index ? 'rgba(var(--primary-rgb), 0.2)' : '#0d0d0d',
-                        border: musicaAtualIndex === index ? '1px solid var(--primary)' : '1px solid #1a1a1a',
-                        fontSize: '0.75rem'
-                      }}
-                    >
-                      <span
-                        onClick={() => { setMusicaAtualIndex(index); setMusicaAtiva(true); }}
-                        style={{ cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, color: musicaAtualIndex === index ? 'var(--primary)' : '#fff' }}
-                        title={faixa.nome}
-                      >
-                        {musicaAtualIndex === index ? "▶ " : ""}{faixa.nome}
-                      </span>
-
-                      {faixa.custom && (
-                        <button
-                          onClick={() => removerMusicaCustom(faixa.id)}
-                          style={{ background: 'none', border: 'none', color: '#ff4a4a', cursor: 'pointer', fontSize: '0.85rem', padding: '0 4px' }}
-                          title="Remover música"
-                        >
-                          ×
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               <div className="secao-conquistas-painel">
                 <h4 style={{ margin:0 }}>{t.conquistasTitulo} ({conquistasDesbloqueadas.length}/{LISTA_CONQUISTAS.length})</h4>
@@ -1969,7 +1865,7 @@ export default function App() {
                     <input type="checkbox" checked={musicaAtiva} onChange={(e)=>setMusicaAtiva(e.target.checked)} style={styles.checkbox}/>
                   </div>
                   <div style={{ background:'#000', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'6px', padding:'8px' }}>
-                    <div style={{ fontFamily:"'Fira Code',monospace", fontSize:'0.75rem', color:musicaAtiva?'var(--primary)':'#666', textOverflow:'ellipsis', overflow:'hidden', whiteSpace:'nowrap', marginBottom:'6px' }}>{playlist[musicaAtualIndex]?.nome}</div>
+                    <div style={{ fontFamily:"'Fira Code',monospace", fontSize:'0.75rem', color:musicaAtiva?'var(--primary)':'#666', textOverflow:'ellipsis', overflow:'hidden', whiteSpace:'nowrap', marginBottom:'6px' }}>{PLAYLIST[musicaAtualIndex].nome}</div>
                     <div style={{ display:'flex', justifyContent:'center', gap:'15px' }}>
                       <button onClick={musicaAnterior} style={{ background:'none', border:'none', color:'#fff', cursor:'pointer' }}>⏮</button>
                       <button onClick={proximaMusica}  style={{ background:'none', border:'none', color:'#fff', cursor:'pointer' }}>⏭</button>
